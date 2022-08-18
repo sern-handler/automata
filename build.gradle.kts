@@ -22,6 +22,9 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation("io.ktor:ktor-client-core:2.1.0")
     implementation("io.ktor:ktor-client-cio:2.1.0")
+    implementation("io.ktor:ktor-client-content-negotiation:2.1.0")
+    // Use JSON serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation("io.ktor:ktor-server-core-jvm:2.0.3")
     implementation("io.ktor:ktor-server-netty-jvm:2.0.3")
     implementation("com.auth0:java-jwt:$jwt_version")
