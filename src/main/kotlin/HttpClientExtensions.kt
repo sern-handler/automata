@@ -28,7 +28,6 @@ fun Routing.pullRequests() {
                 call.respond(HttpStatusCode.Unauthorized, "Nice try")
             }
             launch(Dispatchers.Default) {
-
                 Client.eventEmitter.produceEvent(text)
             }.join()
         }

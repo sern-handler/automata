@@ -8,7 +8,6 @@ class EventEmitter {
     val events = _events.asSharedFlow() // publicly exposed as read-only shared flow
 
     suspend fun produceEvent(event: String) {
-        print(event)
         _events.emit(event) // suspends until all subscribers receive it
     }
 }

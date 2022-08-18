@@ -8,8 +8,7 @@ fun main() = runBlocking {
     val repo = client.fetchRepoAsync("awesome-plugins").await()
 
     client.on<PullRequests>("pull_request") {
-
-        println(it)
+        repo.getPullRequest(it.number).comment("Hello, I just saw that you did something to this pull request")
     }
     println("Start program")
     client.startWebhookListener()
