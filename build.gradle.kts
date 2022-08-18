@@ -19,6 +19,8 @@ repositories {
 
 dependencies {
     implementation(platform("io.arrow-kt:arrow-stack:$arrow_fx_version"))
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:2.1.0")
+    implementation("io.ktor:ktor-serialization-gson-jvm:2.1.0")
     testImplementation(kotlin("test"))
     implementation("io.ktor:ktor-client-core:2.1.0")
     implementation("io.ktor:ktor-client-cio:2.1.0")

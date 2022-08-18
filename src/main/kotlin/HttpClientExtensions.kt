@@ -5,6 +5,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import structures.PullRequests
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.xor
@@ -25,6 +28,7 @@ fun Routing.pullRequests() {
                 call.respond(HttpStatusCode.Unauthorized, "Nice try")
             }
             launch(Dispatchers.Default) {
+
                 Client.eventEmitter.produceEvent(text)
             }.join()
         }

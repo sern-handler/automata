@@ -1,4 +1,6 @@
 package structures
+
+@kotlinx.serialization.Serializable
 data class PullRequests(
     val action: String,
     val label: Label,
@@ -7,4 +9,4 @@ data class PullRequests(
     val pull_request: PullRequest,
     val repository: Repository,
     val sender: Sender
-)
+) : Response()

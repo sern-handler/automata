@@ -1,4 +1,7 @@
 package structures
+
+import kotlinx.serialization.json.JsonNames
+
 @kotlinx.serialization.Serializable
 data class Repository(
     val allow_forking: Boolean,
@@ -56,8 +59,8 @@ data class Repository(
     val notifications_url: String,
     val open_issues: Int,
     val open_issues_count: Int,
-    val user: User,
-    val `private`: Boolean,
+    val owner: User,
+    val private: Boolean,
     val pulls_url: String,
     val pushed_at: String,
     val releases_url: String,

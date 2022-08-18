@@ -10,16 +10,18 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.utils.*
 import io.ktor.http.*
+import io.ktor.serialization.gson.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.flow.collect
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.kohsuke.github.*
-import org.kohsuke.github.connector.GitHubConnector
-import org.kohsuke.github.extras.authorization.JWTTokenProvider
+import structures.PullRequests
+import structures.Response
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
@@ -27,20 +29,16 @@ import java.time.Instant
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+
 object Client : CoroutineScope {
     private const val orgName = "sern-handler"
     private const val baseLink = "https://api.github.com"
     private var jwtToken: String
     private var gitHubApp: GHApp
     private var gitHub: GitHub
-    private val ktorClient = HttpClient(CIO) {
-        install(ContentNegotiation)  {
-
-        }
-
-    }
     private var parentJob = Job()
     val eventEmitter = EventEmitter()
+    val json = Json { ignoreUnknownKeys = true }
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + parentJob
@@ -51,6 +49,7 @@ object Client : CoroutineScope {
         parentCoroutineContext = coroutineContext
     ) {
         configureRouting()
+        install(ContentNegotiation)
     }
     init {
         runBlocking {
@@ -79,35 +78,39 @@ object Client : CoroutineScope {
         }
     }
 
-    fun fetchRepoAsync(name: String) : Deferred<GHRepository> {
+    fun fetchRepoAsync(name: String): Deferred<GHRepository> {
         return async {
-           gitHub.getRepository("$orgName/$name")
+            gitHub.getRepository("$orgName/$name")
         }
     }
-     fun fetchPullRequestAsync(repo : GHRepository, id: Int) : Deferred<Either<String, GHPullRequest>> {
+
+    fun fetchPullRequestAsync(repo: GHRepository, id: Int): Deferred<Either<String, GHPullRequest>> {
         return async {
-                try {
-                    Either.Right(repo.getPullRequest(id))
-                } catch(e : Throwable) {
-                    Either.Left("Could not find a pull request #$id")
-             }
+            try {
+                Either.Right(repo.getPullRequest(id))
+            } catch (e: Throwable) {
+                Either.Left("Could not find a pull request #$id")
+            }
         }
     }
-    suspend fun <T> on(
+
+    suspend inline fun <reified T : Response >on(
         eventName: String,
-        fn: suspend (String) -> Unit
+        crossinline fn: (T) -> Unit
     ) {
         Client.launch {
             eventEmitter.events.collect {
                 when (eventName) {
-                    "pull_request" -> fn(it)
+                    "pull_request" -> {
+                        fn(json.decodeFromString(it))
+                    }
                 }
             }
         }
     }
 
     private fun processKey() = resource {
-        object{}.javaClass.getResourceAsStream("/private_key.pem")
+        object {}.javaClass.getResourceAsStream("/private_key.pem")
             ?.bufferedReader()
             ?.useLines { br ->
                 val privateKey = br.filter { str ->
