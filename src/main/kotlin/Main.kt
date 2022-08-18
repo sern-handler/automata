@@ -4,15 +4,13 @@ import kotlinx.coroutines.*
 fun main() = runBlocking {
 
     val client = Client
+    val repo = client.fetchRepoAsync("awesome-plugins").await()
 
-    client.on<String>("pullRequest") {
+    client.on<String>("pull_request") {
+
         println(it + "2")
     }
-    client.on<String>("issue") {
-        println(it + "3")
-    }
     println("Start program")
-    println(Thread.currentThread().name)
     client.startWebhookListener()
 }
 

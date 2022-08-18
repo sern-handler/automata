@@ -5,6 +5,12 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTCreationException
 import io.github.cdimascio.dotenv.dotenv
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.utils.*
+import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.*
@@ -13,6 +19,7 @@ import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.flow.collect
 import org.kohsuke.github.*
 import org.kohsuke.github.connector.GitHubConnector
+import org.kohsuke.github.extras.authorization.JWTTokenProvider
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
@@ -26,6 +33,12 @@ object Client : CoroutineScope {
     private var jwtToken: String
     private var gitHubApp: GHApp
     private var gitHub: GitHub
+    private val ktorClient = HttpClient(CIO) {
+        install(ContentNegotiation)  {
+
+        }
+
+    }
     private var parentJob = Job()
     val eventEmitter = EventEmitter()
 
@@ -47,13 +60,12 @@ object Client : CoroutineScope {
             val privateKey = processKey().use { it }
             val algorithm = Algorithm.RSA256(privateKey)
             jwtToken = JWT.create()
-                .withIssuer("215907")
+                .withIssuer(System.getProperty("APP_ID"))
                 .withIssuedAt(Instant.now().minusMillis(6_000))
                 .withExpiresAt(Instant.now().plusMillis(600000))
                 .sign(algorithm) ?: throw JWTCreationException("Could not create JWT", Throwable())
             val github = GitHubBuilder()
                 .withJwtToken(jwtToken)
-                .withConnector(GitHubConnector.DEFAULT)
                 .withEndpoint(baseLink)
                 .build()
             gitHubApp = github.app
@@ -67,14 +79,9 @@ object Client : CoroutineScope {
         }
     }
 
-    fun fetchRepoAsync(name: String) : Deferred<Either<String,GHRepository>> {
+    fun fetchRepoAsync(name: String) : Deferred<GHRepository> {
         return async {
-            try {
-                Either.Right(gitHub.getRepository("$orgName/$name"))
-            } catch (e: Throwable) {
-                Either.Left(e.message ?: "Something went wrong while trying to fetch repository")
-            }
-
+           gitHub.getRepository("$orgName/$name")
         }
     }
      fun fetchPullRequestAsync(repo : GHRepository, id: Int) : Deferred<Either<String, GHPullRequest>> {
@@ -92,8 +99,8 @@ object Client : CoroutineScope {
     ) {
         Client.launch {
             eventEmitter.events.collect {
-                when (it) {
-                    "Hello" -> fn(it)
+                when (eventName) {
+                    "pull_request" -> fn(it)
                 }
             }
         }

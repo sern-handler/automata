@@ -18,7 +18,7 @@ fun Application.configureRouting() {
 }
 
 fun Routing.pullRequests() {
-        post("/payload") {
+        post("/pulls") {
             val secret = call.request.headers["X-Hub-Signature-256"]!!
             val text = call.receiveText()
             if(!HashUtils.secureCompare(secret, HashUtils.sha256(text))) {
