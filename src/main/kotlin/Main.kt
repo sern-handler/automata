@@ -1,17 +1,16 @@
 
 import kotlinx.coroutines.*
-import structures.PullRequests
+import structures.api.PullRequests
 
 fun main() = runBlocking {
 
-    val client = Client
-    val repo = client.fetchRepoAsync("awesome-plugins").await()
 
-    client.on<PullRequests>("pull_request") {
-        repo.getPullRequest(it.number).comment("Hello, I just saw that you did something to this pull request")
+    Client.loginAsync()
+    println(Client.orgAccount)
+    Client.on<PullRequests>("pull_request") { pr_event ->
+        println(pr_event)
     }
-    println("Start program")
-    client.startWebhookListener()
+    Client.startWebhookListener()
 }
 
 

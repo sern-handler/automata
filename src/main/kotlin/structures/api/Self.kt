@@ -1,5 +1,5 @@
-package structures
+package structures.api
 @kotlinx.serialization.Serializable
-data class Comments(
+data class Self(
     val href: String
 )

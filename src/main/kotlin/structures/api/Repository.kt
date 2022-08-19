@@ -1,6 +1,4 @@
-package structures
-
-import kotlinx.serialization.json.JsonNames
+package structures.api
 
 @kotlinx.serialization.Serializable
 data class Repository(

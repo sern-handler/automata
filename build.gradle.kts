@@ -22,18 +22,20 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm:2.1.0")
     implementation("io.ktor:ktor-serialization-gson-jvm:2.1.0")
     testImplementation(kotlin("test"))
+
     implementation("io.ktor:ktor-client-core:2.1.0")
     implementation("io.ktor:ktor-client-cio:2.1.0")
     implementation("io.ktor:ktor-client-content-negotiation:2.1.0")
+    implementation("io.ktor:ktor-client-json:2.1.0")
+    implementation("io.ktor:ktor-client-serialization:2.0.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.0")
     // Use JSON serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation("io.ktor:ktor-server-core-jvm:2.0.3")
     implementation("io.ktor:ktor-server-netty-jvm:2.0.3")
     implementation("com.auth0:java-jwt:$jwt_version")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version")
     implementation("io.github.cdimascio:dotenv-kotlin:6.3.1")
-    implementation("org.kohsuke:github-api:$gh_version")
-    implementation("io.arrow-kt:arrow-fx-coroutines")
     implementation("io.arrow-kt:arrow-core")
 }
 

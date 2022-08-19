@@ -1,6 +1,6 @@
-package structures
+package structures.api
 @kotlinx.serialization.Serializable
-data class Sender(
+data class User(
     val avatar_url: String,
     val events_url: String,
     val followers_url: String,

@@ -1,4 +1,4 @@
-package structures
+package structures.api
 
 import kotlinx.serialization.Serializable
 

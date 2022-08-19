@@ -1,5 +1,5 @@
-package structures
+package structures.api
 @kotlinx.serialization.Serializable
-data class ReviewComments(
+data class Commits(
     val href: String
 )

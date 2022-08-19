@@ -1,5 +1,5 @@
-package structures
+package structures.api
 @kotlinx.serialization.Serializable
-data class Html(
+data class Comments(
     val href: String
 )

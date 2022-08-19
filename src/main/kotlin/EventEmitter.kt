@@ -1,7 +1,5 @@
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import structures.PullRequests
-import structures.Response
 
 class EventEmitter {
     private val _events = MutableSharedFlow<String>() // private mutable shared flow

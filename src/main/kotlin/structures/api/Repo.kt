@@ -1,4 +1,4 @@
-package structures
+package structures.api
 @kotlinx.serialization.Serializable
 data class Repo(
     val allow_auto_merge: Boolean,

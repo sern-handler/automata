@@ -1,5 +1,5 @@
-package structures
+package structures.api
 @kotlinx.serialization.Serializable
-data class Issue(
+data class Html(
     val href: String
 )
