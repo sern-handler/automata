@@ -30,16 +30,16 @@ data class PullRequest(
     val locked: Boolean,
     val maintainer_can_modify: Boolean,
     val merge_commit_sha: String,
-    val mergeable: Boolean,
+    val mergeable: Boolean?,
     val mergeable_state: String,
     val merged: Boolean,
     val merged_at: String?,
-    val merged_by: String?,
+    val merged_by: MergedBy?,
     val milestone: Milestone?,
     val node_id: String,
     val number: Int,
     val patch_url: String,
-    val rebaseable: Boolean,
+    val rebaseable: Boolean?,
     val requested_reviewers: List<RequestedReviewer>,
     val requested_teams: List<Team>,
     val review_comment_url: String,
@@ -51,4 +51,9 @@ data class PullRequest(
     val updated_at: String,
     val url: String,
     val user: User
+)
+
+@kotlinx.serialization.Serializable
+data class MergedBy(
+    val login : String
 )

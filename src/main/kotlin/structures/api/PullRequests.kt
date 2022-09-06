@@ -1,8 +1,10 @@
 package structures.api
 
+import structures.api.application.PullRequestAction
+
 @kotlinx.serialization.Serializable
 data class PullRequests(
-    val action: String,
+    val action: PullRequestAction,
     val label: Label,
     val number: Int,
     val organization: Organization,
