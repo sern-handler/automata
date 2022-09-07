@@ -29,7 +29,7 @@ data class PullRequest(
     val labels: List<Label>,
     val locked: Boolean,
     val maintainer_can_modify: Boolean,
-    val merge_commit_sha: String,
+    val merge_commit_sha: String?,
     val mergeable: Boolean?,
     val mergeable_state: String,
     val merged: Boolean,
@@ -51,7 +51,7 @@ data class PullRequest(
     val updated_at: String,
     val url: String,
     val user: User
-)
+) : Response()
 
 @kotlinx.serialization.Serializable
 data class MergedBy(

@@ -1,18 +1,23 @@
 
 import kotlinx.coroutines.*
-import structures.api.PullRequests
+import structures.api.application.PullRequestAction
+import structures.options.PullRequestCreateOptions
+import structures.wrapped.PullRequestsManager
 
 fun main() = runBlocking {
+    val sernClient = Client()
+    sernClient.loginAsync()
 
-
-    Client.loginAsync()
-    println(Client.orgAccount)
-    Client.on<PullRequests>("pull_request") { pr_event ->
-        println(pr_event)
+    sernClient.on<PullRequestsManager>("pull_request") { pr_event ->
+        when(pr_event.action) {
+            PullRequestAction.Opened -> {
+                println("new pull request opened")
+            }
+            else -> Unit
+        }
     }
-    Client.startWebhookListener()
+    sernClient.startWebhookListener()
 }
-
 
 
 

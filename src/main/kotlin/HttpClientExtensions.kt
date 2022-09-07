@@ -1,34 +1,49 @@
+import HashUtils.verifySignature
+import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.Json
-import java.io.InputStreamReader
-import java.io.Reader
+import kotlinx.serialization.decodeFromString
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.xor
 
 
-fun Application.configureRouting() {
+fun Application.configureRouting(client: Client) {
     routing {
-        pullRequests()
+
+        pullRequests(client)
     }
 
 }
 
-fun Routing.pullRequests() {
+fun Routing.pullRequests(client: Client) {
         post("/pulls") {
             val secret = call.request.headers["X-Hub-Signature-256"]!!
-            val text = call.receiveText()
-            if(!HashUtils.secureCompare(secret, HashUtils.sha256(text))) {
-                call.respond(HttpStatusCode.Unauthorized, "Nice try")
+            val event = call.request.headers["X-Github-Event"]!!
+            val respText = call.receiveText()
+            when(val resp = verifySignature(secret, respText)) {
+                is Either.Left -> {
+                    launch(Dispatchers.Default) {
+                        when(event) {
+                            "pull_request" -> {
+                                Globals.eventEmitter.produceEvent(
+                                    structures.wrapped.PullRequestsManager(client,
+                                        Globals.serializer.decodeFromString(resp.value)
+                                    )
+                                )
+                            }
+                        }
+                        call.respond(HttpStatusCode.OK)
+                    }.join()
+                }
+                is Either.Right -> resp.value
             }
-            launch(Dispatchers.Default) {
-                Client.eventEmitter.produceEvent(text)
-            }.join()
+
         }
 }
 
@@ -62,5 +77,12 @@ object HashUtils {
 
         val hash: ByteArray = hasher.doFinal(body.toByteArray())
         return "sha256=${hash.toHex()}"
+    }
+
+    suspend inline fun PipelineContext<Unit, ApplicationCall>.verifySignature(secret: String, resp: String) : Either<String, Unit> {
+        if(secureCompare(secret, sha256(resp))) {
+            return Either.Left(resp)
+        }
+        return Either.Right(call.respond(HttpStatusCode.Unauthorized, "Nice try"))
     }
 }
