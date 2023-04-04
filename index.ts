@@ -1,7 +1,9 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import 'dotenv/config';
 
 const app = express()
+app.use(bodyParser)
 
 app.get('/', (req, res) => {
 	res.send('Hey! This is sern automata\'s Rest API/webhook server/control server!')
