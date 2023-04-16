@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import 'dotenv/config';
 import { execa } from 'execa';
+import { validateJsonWebhook } from './util/validateJsonWebhook.js';
 
 const app = express()
 app.use(bodyParser.json())
@@ -12,12 +13,19 @@ app.get('/', (req, res) => {
 })
 
 app.post('/wh/updateDocsJson', async (req, res) => {
-	if (req.body.token !== process.env.TOKEN) {
-		res.send({
+	const validate = validateJsonWebhook(req)
+	if (!validate) {
+		res.status(403).send({
 			success: false,
 			error: 'Invalid token'
 		})
 		return
+	}
+	if (req.body.action !== 'released') {
+		res.send({
+			success: true,
+			error: 'Token valid, but ignoring action...'
+		})
 	}
 	const command = await execa('bash', ['scripts/updateDocsJson.sh', process.env.GHTOKEN!], { shell: true })
 	res.send({
