@@ -1,10 +1,10 @@
 FROM node:lts-alpine
 
-RUN apk add git bash
+RUN apk add git bash curl
 
 WORKDIR /app
 
-RUN bash util/setup.sh
+RUN bash ./util/setup.sh
 
 COPY package.json ./
 
