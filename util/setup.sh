@@ -9,6 +9,10 @@ mkdir repos
 cd repos
 echo " done"
 
+echo -ne "Installing sern CLI"
+npm install -g @sern/cli
+echo " done"
+
 echo "Cloning repos"
 # handler (clone it as sernHandlerV2)
 echo -ne "- handler"

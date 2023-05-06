@@ -1,0 +1,3 @@
+[
+    { "file": "pst.clj", "route": "/bb/getPstTime", "method": "GET" }
+]
