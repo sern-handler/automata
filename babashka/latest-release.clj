@@ -1,9 +1,9 @@
-(require '[clojure.java.shell :refer [sh]]
+(require '[babashka.http-client :as http]
          '[cheshire.core :as json])
 
 (defn latest-version [sern-repo]
-  (-> (sh "curl" (str "https://api.github.com/repos/sern-handler/" sern-repo "/tags"))
-      :out
+  (-> (http/get (str "https://api.github.com/repos/sern-handler/" sern-repo "/tags"))
+      :body
       (json/parse-string true)
       first
       :name))
