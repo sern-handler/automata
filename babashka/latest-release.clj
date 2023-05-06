@@ -1,7 +1,7 @@
 (require '[babashka.http-client :as http]
          '[cheshire.core :as json])
 
-(def token (get env "TOKEN"))
+(def token (get env "GHTOKEN"))
 
 (defn latest-version [sern-repo]
   (-> (http/get 
