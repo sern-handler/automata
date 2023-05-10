@@ -5,13 +5,11 @@ RUN bash < <(curl -s https://raw.githubusercontent.com/babashka/babashka/master/
 
 WORKDIR /app
 
+COPY . .
+
 RUN bash ./util/setup.sh
 
-COPY package.json ./
-
 RUN npm install
-
-COPY . .
 
 RUN tsc --build
 
