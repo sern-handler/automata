@@ -1,4 +1,4 @@
 [
     { "file": "pst.clj", "route": "/bb/getPstTime", "method": "GET" },
-    { "file": "latest-release.clj", "route": "/bb/sernRelease", "method" "GET" }
+    { "file": "latest-release.clj", "route": "/bb/sernRelease", "method": "GET" }
 ]
