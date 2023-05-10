@@ -2,7 +2,8 @@
   "name": "automata",
   "version": "1.0.0",
   "scripts": {
-    "dev": "tsc-watch --onSuccess \"node dist/index.js\""
+    "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
+    "build": "tsc"
   },
   "type": "module",
   "dependencies": {

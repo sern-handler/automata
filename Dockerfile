@@ -11,6 +11,6 @@ RUN bash ./util/setup.sh
 
 RUN npm install
 
-RUN tsc --build
+RUN npm run build
 
 RUN node dist/index.js
