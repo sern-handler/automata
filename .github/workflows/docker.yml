@@ -33,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: containers.srizan.dev/vinci
+          images: containers.srizan.dev/automata
           tags: latest
 
       - name: Build and push Docker image
