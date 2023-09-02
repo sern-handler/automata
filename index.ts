@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import 'dotenv/config';
 import { execa } from 'execa';
 import { validateJsonWebhook } from './util/validateJsonWebhook.js';
-import babashkaScripts from './babashka/scripts.json' assert { type: 'json' }
+import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
 
 const app = express()
 app.use(bodyParser.json())
@@ -28,10 +28,10 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 			error: 'Token valid, but ignoring action...'
 		})
 	}
-	const command = await execa('bash', ['scripts/updateDocsJson.sh', process.env.GHTOKEN!], { shell: true })
+	execa('bash', ['scripts/updateDocsJson.sh', process.env.GHTOKEN!, process.env.EMAIL!], { shell: true })
 	res.send({
-		success: command.exitCode === 0 ? true : false,
-		cmdoutput: command.stdout
+		success: true,
+		message: "command is running"
 	})
 })
 

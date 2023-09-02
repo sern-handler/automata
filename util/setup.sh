@@ -44,15 +44,15 @@ npm i > /dev/null 2>&1
 cd ..
 echo " done"
 # handler
-echo -ne "- handler"
+echo -ne "- handler (using yarn)"
 cd sernHandlerV2
-npm i > /dev/null 2>&1
+yarn > /dev/null 2>&1
 cd ..
 echo " done"
 # discord bot
 echo -ne "- discord bot (using yarn)"
 cd sern-community
-yarn install > /dev/null 2>&1
+yarn > /dev/null 2>&1
 cd ..
 echo " done"
 
