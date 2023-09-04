@@ -9,8 +9,7 @@ const app = express()
 app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
-	res.contentType('html')
-	res.send('Hey! This is sern automata\'s Rest API/webhook server/control server!<br><h1>Why isn\'t this on sern.dev?</h1><br>Well, Cloudflare Tunnels only works on domains that you have registered in your Cloudflare account. I don\'t have control of the domain so I just use srizan.dev instead!<br><h1>docs?</h1><br>nah, too lazy')
+	res.send('insert webserver here')
 })
 
 app.post('/wh/updateDocsJson', async (req, res) => {
