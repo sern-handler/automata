@@ -26,6 +26,8 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 			success: true,
 			error: 'Token valid, but ignoring action...'
 		})
+		// this line fixed the entire instability of automata
+		return;
 	}
 	execa('bash', ['scripts/updateDocsJson.sh', process.env.GHTOKEN!, process.env.EMAIL!], { shell: true })
 	res.send({
