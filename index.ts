@@ -1,12 +1,35 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import 'dotenv/config';
 import { execa } from 'execa';
 import { validateJsonWebhook } from './util/validateJsonWebhook.js';
 import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
+import PocketBase from 'pocketbase';
+import { FeedbackRecord } from './util/pbtypes.js';
+import { FeedbackRequestBody } from './util/types.js';
+import axios from 'axios';
+import FormData from 'form-data';
+import cors from 'cors'
+import rateLimit from 'express-rate-limit';
+import { Webhook } from 'simple-discord-webhooks';
+import { codeBlock } from './util/discordCodeBlock.js';
+
+const devMode = process.argv[2] === '--dev';
+if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
+
+const pb = new PocketBase('https://pb.automata.sern.dev');
+await pb.admins.authWithPassword(process.env.PB_EMAIL!, process.env.PB_PASS!).then(() => console.log('Logged into Pocketbase!'))
 
 const app = express()
-app.use(bodyParser.json())
+app.use(express.json())
+app.use(cors())
+
+const feedbackRateLimit = rateLimit({
+	windowMs: 5 * 60 * 1000,
+	max: 10,
+	standardHeaders: 'draft-7',
+	legacyHeaders: true,
+	
+})
 
 app.get('/', (req, res) => {
 	res.send('insert webserver here')
@@ -34,6 +57,76 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 		success: true,
 		message: "command is running"
 	})
+})
+
+app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
+	const body = JSON.parse(JSON.stringify(req.body)) as FeedbackRequestBody
+	// validation of request body
+	if (
+		typeof body.turnstileToken !== "string" ||
+		// type of string should be "up" or "down" but it's checked later
+		typeof body.feedback !== "string" ||
+		typeof body.route !== "string"
+  	)
+    return res
+		.status(400)
+		.send({
+			successful: false,
+			error: "You have something missing in your request!",
+		});
+	if (body.feedback !== "up" && body.feedback !== "down")
+		return res
+			.status(400)
+			.send({
+				successful: false,
+				error: "Feedback must be either 'up' or 'down'!",
+			});
+	if (!body.route.startsWith('/docs/tutorial'))
+		return res
+			.status(400)
+			.send({
+				successful: false,
+				error: "Are you sure you didn't modify this request?",
+			});
+
+	// part where turnstile token gets validated
+	const turnstileFormData = new FormData()
+	turnstileFormData.append('response', body.turnstileToken)
+	turnstileFormData.append('secret', process.env.TURNSTILE_SECRET)
+	const turnstileResponse = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', turnstileFormData).then(res => res.data)
+	if (!turnstileResponse.success)
+		return res
+			.status(403)
+			.send({
+				successful: false,
+				error: "Turnstile verificaion not successful",
+			});
+	
+	// deletion and changes to the body to then make it easier to use the spread operator
+	delete body.turnstileToken
+	body.route = body.route.replace('/docs/tutorial', '')
+
+	// actual database recording
+	const data: FeedbackRecord = { ...body }
+	await pb.collection('feedback').create(data)
+	res.send({
+		successful: true,
+		message: "Feedback recorded!",
+	});
+
+	// webhook
+	const webhook = new Webhook(new URL(process.env.DEV_WEBHOOK!), 'sern Guide Feedback (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
+	const upvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'up' && route = '${body.route}'` })).length
+	const downvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'down' && route = '${body.route}'` })).length
+	webhook.send(`Feedback recorded for ${body.route}!`, [{
+		color: body.feedback === 'up' ? 0x00ff00 : 0xff0000,
+		description: body.inputText ? codeBlock(body.inputText) : undefined,
+		fields: [
+			{ name: 'Ratio', value: `${(upvoteCount / (upvoteCount + downvoteCount) * 100).toFixed(2)}%`, inline: true },
+			{ name: 'Upvotes', value: upvoteCount.toString(), inline: true },
+			{ name: 'Downvotes', value: downvoteCount.toString(), inline: true },
+		]
+	}])
 })
 
 for (const script of babashkaScripts) {
