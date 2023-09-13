@@ -6,7 +6,6 @@ import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
 import PocketBase from 'pocketbase';
 import { FeedbackRecord } from './util/pbtypes.js';
 import { FeedbackRequestBody } from './util/types.js';
-import FormData from 'form-data';
 import cors from 'cors'
 import rateLimit from 'express-rate-limit';
 import { Webhook } from 'simple-discord-webhooks';
