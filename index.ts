@@ -6,7 +6,6 @@ import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
 import PocketBase from 'pocketbase';
 import { FeedbackRecord } from './util/pbtypes.js';
 import { FeedbackRequestBody } from './util/types.js';
-import axios from 'axios';
 import FormData from 'form-data';
 import cors from 'cors'
 import rateLimit from 'express-rate-limit';
@@ -90,10 +89,13 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 			});
 
 	// part where turnstile token gets validated
-	const turnstileFormData = new FormData()
+	const turnstileFormData = new URLSearchParams()
 	turnstileFormData.append('response', body.turnstileToken)
-	turnstileFormData.append('secret', process.env.TURNSTILE_SECRET)
-	const turnstileResponse = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', turnstileFormData).then(res => res.data)
+	turnstileFormData.append('secret', process.env.TURNSTILE_SECRET!)
+	const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+		method: 'POST',
+		body: turnstileFormData
+	}).then(res => res.json())
 	if (!turnstileResponse.success)
 		return res
 			.status(403)
@@ -115,7 +117,7 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 	});
 
 	// webhook
-	const webhook = new Webhook(new URL(process.env.DEV_WEBHOOK!), 'sern Guide Feedback (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
+	const webhook = new Webhook(new URL(process.env.DEV_WEBHOOK!), 'Guide Feedback (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
 	const upvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'up' && route = '${body.route}'` })).length
 	const downvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'down' && route = '${body.route}'` })).length
 	webhook.send(`Feedback recorded for ${body.route}!`, [{
