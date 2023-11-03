@@ -154,4 +154,4 @@ for (const script of babashkaScripts) {
 	console.log(`Babashka script ${script.file} was registered successfully in ${script.method} ${script.route}`)
 }
 
-app.listen(3000, () => console.log('Listening!'))
+app.listen(process.env.PORT, () => console.log('Listening!'))
