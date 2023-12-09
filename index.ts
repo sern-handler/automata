@@ -5,11 +5,15 @@ import { validateJsonWebhook } from './util/validateJsonWebhook.js';
 import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
 import PocketBase from 'pocketbase';
 import { FeedbackRecord } from './util/pbtypes.js';
-import { FeedbackRequestBody } from './util/types.js';
+import { DiscordGuilds, FeedbackRequestBody } from './util/types.js';
 import cors from 'cors'
 import rateLimit from 'express-rate-limit';
 import { Webhook } from 'simple-discord-webhooks';
 import { codeBlock } from './util/discordCodeBlock.js';
+import * as path from 'node:path';
+import expressWs from 'express-ws';
+import ky from 'ky';
+import { parse } from 'node:url';
 
 const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
@@ -17,7 +21,8 @@ if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpsca
 const pb = new PocketBase('https://pb.automata.sern.dev');
 await pb.admins.authWithPassword(process.env.PB_EMAIL!, process.env.PB_PASS!).then(() => console.log('Logged into Pocketbase!'))
 
-const app = express()
+const expressApp = express()
+const { app } = expressWs(expressApp)
 app.use(express.json())
 app.use(cors())
 
@@ -29,9 +34,8 @@ const feedbackRateLimit = rateLimit({
 	
 })
 
-app.get('/', (req, res) => {
-	res.send('insert webserver here')
-})
+app.use('/ui', express.static('ui-build'))
+app.get('/ui/*', (req, res) => res.sendFile('index.html', { root: path.resolve('ui-build') }));
 
 app.post('/wh/updateDocsJson', async (req, res) => {
 	const validate = validateJsonWebhook(req)
@@ -60,6 +64,7 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 	const body = JSON.parse(JSON.stringify(req.body)) as FeedbackRequestBody
 	// validation of request body
+	// TODO: move all this to zod
 	if (
 		typeof body.turnstileToken !== "string" ||
 		// type of string should be "up" or "down" but it's checked later
@@ -91,10 +96,11 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 	const turnstileFormData = new URLSearchParams()
 	turnstileFormData.append('response', body.turnstileToken)
 	turnstileFormData.append('secret', process.env.TURNSTILE_SECRET!)
-	const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+	const turnstileResponse = await ky('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
 		method: 'POST',
 		body: turnstileFormData
-	}).then(res => res.json())
+		// too lazy to do proper types for this
+	}).then(async res => await res.json() as { success: boolean })
 	if (!turnstileResponse.success)
 		return res
 			.status(403)
@@ -154,4 +160,81 @@ for (const script of babashkaScripts) {
 	console.log(`Babashka script ${script.file} was registered successfully in ${script.method} ${script.route}`)
 }
 
-app.listen(3000, () => console.log('Listening!'))
+app.get('/oc/oc/callback', async (req, res) => {
+	const code = req.query.code
+	if (!code) return res.status(400).send('No code provided')
+
+	res.redirect(`https://${devMode ? 'automatadev.srizan.dev' : 'automata.sern.dev'}/ui/oc?oc-code=${code}`)
+})
+
+app.get('/oc/discord/callback', async (req, res) => {
+	res.send(req.query.access_token)
+
+	// res.redirect(`https://${devMode ? 'automatadev.srizan.dev' : 'automata.sern.dev'}/ui/oc?dsc-code=`)
+})
+
+app.ws('/oc/ws', async (ws, req) => {
+	try {
+		const url = parse(req.url!, true)
+		const ocCode = url.query['oc-code'] as string
+		const discordCode = url.query['dsc-code'] as string
+
+		await ky('https://discord.com/oauth2/token', {
+			headers: {
+				'Authorization': `Bearer ${discordCode}`
+			}
+		}).then(async res => await res.text())
+		ws.send(JSON.stringify({ status: 'discord-exchange' }))
+
+		const discordUser = await ky('https://discord.com/api/users/@me', {
+			headers: {
+				Authorization: `Bearer ${discordCode}`
+			}
+		}).then(async res => await res.json())
+		ws.send(JSON.stringify({ status: 'discord-recognition', user: discordUser }))
+		console.log(discordUser)
+
+		if (
+			(
+				await(
+				await ky("https://discord.com/api/users/@me/guilds", {
+					headers: {
+					Authorization: `Bearer ${discordCode}`,
+					},
+				})
+				).json() as DiscordGuilds[]
+			).map((g) => g.id === process.env.SERN_GUILD_ID!).length === 0
+		) throw new Error("Not in Discord server");
+		
+		const ocToken = await ky.post('https://opencollective.com/oauth/token', {
+			body: new URLSearchParams({
+				grant_type: 'authorization_code',
+				client_id: process.env.OC_OC_OAUTH_CLIENT!,
+				client_secret: process.env.OC_OC_OAUTH_SECRET!,
+				code: ocCode,
+				redirect_uri: `https://${devMode ? 'automatadev.srizan.dev' : 'automata.sern.dev'}/oc/oc/callback`
+			}),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Authorization': `Bearer ${ocCode}`
+			}
+		}).then(async res => (await res.json() as { access_token: string }).access_token)
+		ws.send(JSON.stringify({ status: 'oc-exchange' }))
+		console.log(ocToken)
+
+		const ocIdentify = await ky.post(`https://opencollective.com/api/graphql/v2`, {
+			body: JSON.stringify({query: "{ me { id name email } }"}),
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${ocToken}`
+			}
+		}).then(async res => await res.json() as { data: { me: { id: string, name: string, email: string } } })
+		ws.send(JSON.stringify({ status: 'oc-identify' }))
+		console.log(ocIdentify)
+	} catch (e) {
+		ws.send(JSON.stringify({ status: 'error', error: e }))
+	}
+})
+
+
+app.listen(4000, () => console.log('Listening!'))
