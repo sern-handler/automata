@@ -50,7 +50,9 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 		// this line fixed the entire instability of automata
 		return;
 	}
-	execa('bash', ['scripts/updateDocsJson.sh', process.env.GHTOKEN!, process.env.EMAIL!], { shell: true })
+	const cmd = execa('bash', ['scripts/updateDocsJson.sh', process.env.GHTOKEN!, process.env.EMAIL!], { shell: true })
+	cmd.stdout!.on('data', (data) => console.log(JSON.stringify(data.toString())))
+	cmd.stderr!.on('data', (data) => console.log(JSON.stringify(data.toString())))
 	res.send({
 		success: true,
 		message: "command is running"
