@@ -14,7 +14,7 @@ mv original.docusaurus.config.js docusaurus.config.js
 npm run typedoc-json
 git add .
 git -c user.name="sern bot" -c user.email="$2" commit -m "chore: update api documentation"
-git push https://sernbot:$1@github.com/sern-handler/website.git
+git push --force https://sernbot:$1@github.com/sern-handler/website.git
 cd ..
 cd sern-community
 git add .
