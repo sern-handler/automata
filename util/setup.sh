@@ -47,17 +47,17 @@ echo "Installing npm packages"
 # website
 echo -ne "- website"
 cd website
-npm i > /dev/null 2>&1
+yarn > /dev/null 2>&1
 cd ..
 echo " done"
 # handler
-echo -ne "- handler (using yarn)"
+echo -ne "- handler"
 cd sernHandlerV2
 yarn > /dev/null 2>&1
 cd ..
 echo " done"
 # discord bot
-echo -ne "- discord bot (using yarn)"
+echo -ne "- discord bot"
 cd sern-community
 yarn > /dev/null 2>&1
 cd ..
