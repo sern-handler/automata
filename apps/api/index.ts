@@ -26,7 +26,6 @@ const feedbackRateLimit = rateLimit({
 	max: 10,
 	standardHeaders: 'draft-7',
 	legacyHeaders: true,
-	
 })
 
 app.get('/', (req, res) => {

@@ -1,4 +1,6 @@
-/node_modules
+node_modules
 .env
 /repos
-/dist
+dist
+/dev/pocketbase/pocketbase
+/dev/pocketbase/pb_*
