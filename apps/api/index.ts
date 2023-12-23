@@ -14,7 +14,7 @@ import { codeBlock } from './util/discordCodeBlock.js';
 const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
 
-const pb = new PocketBase('https://pb.automata.sern.dev');
+const pb = new PocketBase(process.env.PB_TYPEGEN_URL);
 await pb.admins.authWithPassword(process.env.PB_EMAIL!, process.env.PB_PASS!).then(() => console.log('Logged into Pocketbase!'))
 
 const app = express()
@@ -155,4 +155,4 @@ for (const script of babashkaScripts) {
 	console.log(`Babashka script ${script.file} was registered successfully in ${script.method} ${script.route}`)
 }
 
-app.listen(process.env.PORT, () => console.log('Listening!'))
+app.listen(process.env.PORT || 4000, () => console.log('Listening!'))

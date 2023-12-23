@@ -1,0 +1,14 @@
+{
+  "name": "database",
+  "packageManager": "yarn@4.0.2",
+  "version": "1.0.0",
+  "dependencies": {
+    "drizzle-orm": "^0.29.1",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.9",
+    "drizzle-kit": "^0.20.7",
+    "typescript": "^5.3.3"
+  }
+}

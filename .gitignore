@@ -4,3 +4,12 @@ node_modules
 dist
 /dev/pocketbase/pocketbase
 /dev/pocketbase/pb_*
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+!.yarn/cache
+# .pnp.*
