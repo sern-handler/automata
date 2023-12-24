@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "SERN AUTOMATA SETUP SCRIPT"
+cd apps/api
 
 rm -rf repos/
 
@@ -38,11 +39,6 @@ echo -ne "Installing yarn"
 npm install -g yarn > /dev/null 2>&1
 echo " done"
 
-echo -ne "Setting babashka preloads"
-BABASHKA_PRELOADS='(def lines (babashka.fs/read-all-lines "../.env"))'
-BABASHKA_PRELOADS=$BABASHKA_PRELOADS' (def env (into (sorted-map) ( map #(str/split % #"=") lines )))'
-export BABASHKA_PRELOADS
-echo " done"
 echo "Installing npm packages"
 # website
 echo -ne "- website"

@@ -12,7 +12,7 @@
 	"forwardPorts": [4000],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "bash ./util/setup.sh",
+	"postCreateCommand": "bash ./apps/api/util/setup.sh",
 
 	// Configure tool-specific properties.
 	// "customizations": {},

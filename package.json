@@ -10,12 +10,15 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently \"cd dev/pocketbase && bash start.sh\" \"cd apps/frontend && yarn dev\" \"cd apps/api && yarn dev\""
+    "dev": "concurrently \"yarn workspace frontend dev\" \"yarn workspace api dev\" \"yarn workspace database dev\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
     "tsc-node": "^0.0.3",
     "typescript": "^5.3.3"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.0.2",
+  "//": [
+    "postgres: \"cd dev/postgresql && docker compose up\""
+  ]
 }

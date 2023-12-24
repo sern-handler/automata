@@ -1,5 +1,5 @@
 {
-  "name": "automata",
+  "name": "api",
   "version": "1.0.0",
   "scripts": {
     "dev": "pocketbase-typegen --env --out ./util/pbtypes.ts;tsc-watch --preserveWatchOutput --onSuccess \"node dist/index.js --dev\"",
