@@ -1,8 +1,8 @@
 // @ts-nocheck shush lets pretend this is fine
 import { accounts, sessions, users, verificationTokens } from "database/src/schema";
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { and, eq } from "drizzle-orm";
-import { Adapter } from "next-auth/adapters";
+import type { Adapter } from "next-auth/adapters";
 
 export function PostgresJsDrizzleAdapter(db: PostgresJsDatabase): Adapter {
   return {

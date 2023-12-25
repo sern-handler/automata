@@ -3,19 +3,16 @@ import 'dotenv/config';
 import { execa } from 'execa';
 import { validateJsonWebhook } from './util/validateJsonWebhook.js';
 import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
-import PocketBase from 'pocketbase';
-import { FeedbackRecord } from './util/pbtypes.js';
-import { FeedbackRequestBody } from './util/types.js';
+import { FeedbackRequestBody, FeedbackRequestBodySchema } from './util/types.js';
 import cors from 'cors'
 import rateLimit from 'express-rate-limit';
 import { Webhook } from 'simple-discord-webhooks';
 import { codeBlock } from './util/discordCodeBlock.js';
+import db from 'database/dist/index.js';
+import * as schema from 'database/dist/schema.js';
 
 const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
-
-const pb = new PocketBase(process.env.PB_TYPEGEN_URL);
-await pb.admins.authWithPassword(process.env.PB_EMAIL!, process.env.PB_PASS!).then(() => console.log('Logged into Pocketbase!'))
 
 const app = express()
 app.use(express.json())
@@ -59,20 +56,18 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 })
 
 app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
-	const body = JSON.parse(JSON.stringify(req.body)) as FeedbackRequestBody
+	const body = req.body as FeedbackRequestBody
 	// validation of request body
-	if (
-		typeof body.turnstileToken !== "string" ||
-		// type of string should be "up" or "down" but it's checked later
-		typeof body.feedback !== "string" ||
-		typeof body.route !== "string"
-  	)
-    return res
-		.status(400)
-		.send({
-			successful: false,
-			error: "You have something missing in your request!",
-		});
+	try {
+		FeedbackRequestBodySchema.parse(body)
+	} catch {
+		return res
+			.status(400)
+			.send({
+				successful: false,
+				error: "You have something missing in your request!",
+			});
+	}
 	if (body.feedback !== "up" && body.feedback !== "down")
 		return res
 			.status(400)
@@ -91,7 +86,7 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 	// part where turnstile token gets validated
 	const turnstileFormData = new URLSearchParams()
 	turnstileFormData.append('response', body.turnstileToken)
-	turnstileFormData.append('secret', process.env.TURNSTILE_SECRET!)
+	turnstileFormData.append('secret', process.env.TURNSTILE_SECRET_DEV!)
 	const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
 		method: 'POST',
 		body: turnstileFormData
@@ -103,14 +98,16 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 				successful: false,
 				error: "Turnstile verificaion not successful",
 			});
-	
-	// deletion and changes to the body to then make it easier to use the spread operator
-	delete body.turnstileToken
-	body.route = body.route.replace('/docs/tutorial', '')
 
 	// actual database recording
-	const data: FeedbackRecord = { ...body }
-	await pb.collection('feedback').create(data)
+	const trimmedRoute = body.route.replace('/docs/tutorial', '')
+	const data = {
+		id: crypto.randomUUID(),
+		feedback: body.feedback,
+		route: trimmedRoute,
+		inputText: body.inputText,
+	}
+	await db.insert(schema.guideFeedback).values(data).execute()
 	res.send({
 		successful: true,
 		message: "Feedback recorded!",
@@ -118,8 +115,20 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 
 	// webhook
 	const webhook = new Webhook(new URL(process.env.DEV_WEBHOOK!), 'Guide Feedback (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
-	const upvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'up' && route = '${body.route}'` })).length
-	const downvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'down' && route = '${body.route}'` })).length
+	// const upvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'up' && route = '${body.route}'` })).length
+	// const downvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'down' && route = '${body.route}'` })).length
+	const upvoteCount = (await (db.query.guideFeedback.findMany({
+		where: (guideFeedback, { eq, and }) => and(
+			eq(guideFeedback.feedback, 'up'),
+			eq(guideFeedback.route, trimmedRoute)
+		),
+	})).execute()).length
+	const downvoteCount = (await (db.query.guideFeedback.findMany({
+		where: (guideFeedback, { eq, and }) => and(
+			eq(guideFeedback.feedback, 'down'),
+			eq(guideFeedback.route, trimmedRoute)
+		),
+	})).execute()).length
 	webhook.send(`Feedback recorded for ${body.route}!`, [{
 		color: body.feedback === 'up' ? 0x00ff00 : 0xff0000,
 		description: body.inputText ? codeBlock(body.inputText) : undefined,

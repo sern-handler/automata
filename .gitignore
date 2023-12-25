@@ -2,8 +2,6 @@ node_modules
 .env
 /apps/api/repos
 dist
-/dev/pocketbase/pocketbase
-/dev/pocketbase/pb_*
 
 .yarn/*
 !.yarn/patches
