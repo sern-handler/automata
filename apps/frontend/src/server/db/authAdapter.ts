@@ -3,8 +3,9 @@ import { accounts, sessions, users, verificationTokens } from "database/src/sche
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { and, eq } from "drizzle-orm";
 import type { Adapter } from "next-auth/adapters";
+import database from 'database/src/index'
 
-export function PostgresJsDrizzleAdapter(db: PostgresJsDatabase): Adapter {
+export function PostgresJsDrizzleAdapter(db: typeof database): Adapter {
   return {
     createUser: async (data) => {
       return await db
@@ -137,8 +138,6 @@ export function PostgresJsDrizzleAdapter(db: PostgresJsDatabase): Adapter {
             eq(accounts.provider, account.provider)
           )
         );
-
-      return undefined;
     },
   };
 }

@@ -1,3 +1,3 @@
-import database from 'database/src/index.js'
+import database from 'database/src/index'
 
 export const db = database

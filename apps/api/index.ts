@@ -117,13 +117,13 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 	const webhook = new Webhook(new URL(process.env.DEV_WEBHOOK!), 'Guide Feedback (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
 	// const upvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'up' && route = '${body.route}'` })).length
 	// const downvoteCount = (await pb.collection('feedback').getFullList({ filter: `feedback = 'down' && route = '${body.route}'` })).length
-	const upvoteCount = (await (db.query.guideFeedback.findMany({
+	const upvoteCount = (await (db.query.guideFeedback!.findMany({
 		where: (guideFeedback, { eq, and }) => and(
 			eq(guideFeedback.feedback, 'up'),
 			eq(guideFeedback.route, trimmedRoute)
 		),
 	})).execute()).length
-	const downvoteCount = (await (db.query.guideFeedback.findMany({
+	const downvoteCount = (await (db.query.guideFeedback!.findMany({
 		where: (guideFeedback, { eq, and }) => and(
 			eq(guideFeedback.feedback, 'down'),
 			eq(guideFeedback.route, trimmedRoute)
