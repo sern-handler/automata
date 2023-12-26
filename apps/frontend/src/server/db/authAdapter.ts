@@ -8,7 +8,7 @@ import database from 'database/src/index'
 export function PostgresJsDrizzleAdapter(db: typeof database): Adapter {
   return {
     createUser: async (data) => {
-      return await db
+      return db
         .insert(users)
         .values({ ...data, id: crypto.randomUUID() })
         .returning()
