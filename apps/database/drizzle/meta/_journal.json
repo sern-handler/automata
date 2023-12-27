@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1703347129897,
+      "tag": "0000_tearful_earthquake",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1703508532165,
+      "tag": "0001_chief_ricochet",
+      "breakpoints": true
+    }
+  ]
+}

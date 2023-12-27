@@ -1,4 +1,13 @@
-/node_modules
+node_modules
 .env
-/repos
-/dist
+/apps/api/repos
+dist
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+!.yarn/cache
+# .pnp.*

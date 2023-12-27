@@ -1,0 +1,25 @@
+{
+  "name": "database",
+  "packageManager": "yarn@4.0.2",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc-watch --preserveWatchOutput",
+    "migrate": "tsc && node dist/migrations.js",
+    "generateMigrations": "drizzle-kit generate:pg --schema ./src/schema.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@auth/core": "^0.19.0",
+    "drizzle-orm": "^0.29.2",
+    "postgres": "^3.4.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.9",
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.8",
+    "pg": "^8.11.3",
+    "tsc-watch": "^6.0.4",
+    "typescript": "^5.3.3"
+  }
+}
