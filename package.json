@@ -9,7 +9,8 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach -A run build",
+    "build:api": "yarn workspace api build",
+    "build:frontend": "yarn workspace frontend build",
     "start:api": "yarn workspace api start",
     "start:frontend": "yarn workspace frontend start",
     "dev": "concurrently \"yarn workspace frontend dev\" \"yarn workspace api dev\" \"yarn workspace database dev\""
