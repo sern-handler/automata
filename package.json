@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build:api": "yarn workspace api build",
+    "build:database": "yarn workspace database build",
     "build:frontend": "yarn workspace frontend build",
     "start:api": "yarn workspace api start",
     "start:frontend": "yarn workspace frontend start",
