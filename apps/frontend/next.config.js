@@ -5,6 +5,15 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    async rewrites() {
+		return [
+			{
+				source: '/api/:path*',
+				destination: `${process.env.API_URL}/:path*`,
+			},
+		]
+	},
+};
 
 export default config;

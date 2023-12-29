@@ -140,6 +140,10 @@ app.post('/tutorial/feedback', feedbackRateLimit, async (req, res) => {
 	}])
 })
 
+app.get('/ping', (req, res) => {
+	res.send('Pong')
+})
+
 for (const script of babashkaScripts) {
 	switch (script.method) {
 		case 'GET':
@@ -164,4 +168,4 @@ for (const script of babashkaScripts) {
 	console.log(`Babashka script ${script.file} was registered successfully in ${script.method} ${script.route}`)
 }
 
-app.listen(process.env.PORT || 4000, () => console.log('Listening!'))
+app.listen(process.env.PORT, () => console.log('Listening!'))
