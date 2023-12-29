@@ -168,7 +168,7 @@ for (const script of babashkaScripts) {
 	console.log(`Babashka script ${script.file} was registered successfully in ${script.method} ${script.route}`)
 }
 
-const port = Number(process.env.PORT) || 4000
+const port = 4000
 
 app.listen(port, '::', () => {
 	console.log(`Server listening on [::]${port}`)
