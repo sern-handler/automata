@@ -10,6 +10,7 @@ COPY . .
 RUN yarn
 
 ENV SKIP_ENV_VALIDATION=true
+ENV API_URL="http://api.railway.internal"
 RUN yarn build:frontend
 
 CMD yarn start:frontend
