@@ -1,8 +1,5 @@
 FROM node:lts-alpine
 
-RUN apk add git bash curl
-RUN bash < <(curl -s https://raw.githubusercontent.com/babashka/babashka/master/install)
-
 WORKDIR /app
 
 COPY . .
@@ -10,7 +7,7 @@ COPY . .
 RUN yarn
 
 ENV SKIP_ENV_VALIDATION=true
-ENV API_URL="http://api.railway.internal"
+ENV API_URL="http://api.railway.internal:4000"
 RUN yarn build:frontend
 
 CMD yarn start:frontend
