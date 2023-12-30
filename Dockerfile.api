@@ -10,6 +10,7 @@ COPY . .
 RUN bash ./apps/api/util/setup.sh
 
 RUN yarn
+RUN yarn build:database
 RUN yarn build:api
 
 CMD yarn start:api
