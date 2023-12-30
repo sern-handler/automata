@@ -12,7 +12,10 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"isolatedModules": true,
-		"declaration": true
+		"declaration": true,
+		"paths": {
+			"@database/*": ["./node_modules/database/src/*"],
+		}
 	},
 	"exclude": []
 }

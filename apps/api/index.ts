@@ -8,8 +8,7 @@ import cors from 'cors'
 import rateLimit from 'express-rate-limit';
 import { Webhook } from 'simple-discord-webhooks';
 import { codeBlock } from './util/discordCodeBlock.js';
-import db from 'database/dist/index.js';
-import * as schema from 'database/dist/schema.js';
+import db, { schema } from 'database/dist/index.js';
 
 const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')

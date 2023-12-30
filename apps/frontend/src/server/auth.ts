@@ -5,7 +5,7 @@ import {
 } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { env } from "~/env";
-import db from "database/src/index";
+import db from "database/dist/index";
 import { PostgresJsDrizzleAdapter } from "./db/authAdapter";
 
 /**
