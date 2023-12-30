@@ -43,6 +43,14 @@ export const authOptions: NextAuthOptions = {
         id: user.id,
       },
     }),
+    signIn(params) {
+        const allowedUsers = ['SrIzan10', 'jacoobes', 'Murtarxx', 'EvolutionX-10']
+        if (!allowedUsers.includes(params.user.name!)) {
+            return false
+        } else {
+          return true
+        }
+    },
   },
   adapter: PostgresJsDrizzleAdapter(db),
   providers: [

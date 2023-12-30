@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsc-watch --preserveWatchOutput",
-    "migrate": "tsc && node dist/migrations.js",
+    "migrate": "node dist/migrations.js",
     "generateMigrations": "drizzle-kit generate:pg --schema ./src/schema.ts",
     "build": "tsc"
   },

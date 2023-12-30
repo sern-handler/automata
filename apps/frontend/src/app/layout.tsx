@@ -1,11 +1,13 @@
 import "~/styles/globals.css";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import { Roboto } from "next/font/google";
+import { StyledEngineProvider } from '@mui/material/styles';
+import NextAuthProvider from "../components/NextAuthProvider";
 
-import { Inter } from "next/font/google";
-import NextAuthProvider from "./NextAuthProvider";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
+const roboto = Roboto({
+  weight: ['400'],
+  variable: '--font-sans',
+  subsets: ['latin']
 });
 
 export const metadata = {
@@ -21,9 +23,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>
+      <body className={`font-sans ${roboto.variable}`}>
         <NextAuthProvider>
-          {children}
+          <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+            <StyledEngineProvider injectFirst>
+                {children}
+            </StyledEngineProvider>
+          </AppRouterCacheProvider>
         </NextAuthProvider>
       </body>
     </html>

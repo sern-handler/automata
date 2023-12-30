@@ -26,7 +26,7 @@ const feedbackRateLimit = rateLimit({
 })
 
 app.get('/', (req, res) => {
-	res.send('insert webserver here')
+	res.send('hi this is the api what did you even expect')
 })
 
 app.post('/wh/updateDocsJson', async (req, res) => {

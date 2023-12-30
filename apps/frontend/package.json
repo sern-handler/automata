@@ -11,14 +11,22 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.6",
+    "@babel/runtime": "^7.23.7",
+    "@emotion/cache": "^11.11.0",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.2",
+    "@mui/material-nextjs": "^5.15.0",
     "@planetscale/database": "^1.11.0",
     "@t3-oss/env-nextjs": "^0.7.1",
     "database": "1.0.0",
     "drizzle-orm": "^0.29.1",
-    "next": "^14.0.3",
+    "next": "^14.0.4",
     "next-auth": "^4.24.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.12.0",
+    "swr": "^2.2.4",
     "zod": "^3.22.4"
   },
   "devDependencies": {

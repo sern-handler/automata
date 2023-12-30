@@ -5,6 +5,7 @@
   "repository": "https://github.com/sern-handler/automata.git",
   "author": "Izan Gil <66965250+SrIzan10@users.noreply.github.com>",
   "license": "MIT",
+  "type": "module",
   "workspaces": [
     "apps/*"
   ],
