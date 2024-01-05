@@ -11,9 +11,5 @@ export function validateJsonWebhook(request: Request) {
 
     // compare the signature against the one in the request
     const signature = request.headers["x-hub-signature-256"];
-    if (signature !== expectedSignature) {
-        return false;
-    } else {
-        return true;
-    }
+    return signature === expectedSignature
 }
