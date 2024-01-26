@@ -1,19 +1,23 @@
 import express from 'express';
 import 'dotenv/config';
 import { execa } from 'execa';
-import { validateJsonWebhook } from './util/validateJsonWebhook.js';
-import babashkaScripts from './babashka/scripts.json' assert { type: 'json' };
-import { FeedbackRequestBody, FeedbackRequestBodySchema } from './util/types.js';
+import validateJsonWebhook from './plugins/validateJsonWebhook.js';
+import { FeedbackRequestBody, FeedbackRequestBodySchema, Logs } from './util/types.js';
 import cors from 'cors'
 import rateLimit from 'express-rate-limit';
 import { Webhook } from 'simple-discord-webhooks';
 import { codeBlock } from './util/discordCodeBlock.js';
 import db, { schema } from 'database/dist/index.js';
+import jobs, { LogGroup } from './jobs.js';
+import expressWs from 'express-ws';
+import resolvePlugins from './util/resolvePlugins.js';
+import { PassThrough } from 'node:stream';
 
 const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
+const cwd = process.cwd()
 
-const app = express()
+const { app } = expressWs(express())
 app.use(express.json())
 app.use(cors())
 
@@ -28,6 +32,100 @@ app.get('/', (req, res) => {
 	res.send('hi this is the api what did you even expect')
 })
 
+for (const job of jobs) {
+	const jobLogs: Logs[] = []
+	switch (job.method) {
+		case "POST":
+			app.post(job.route, async (req, res) => {
+				await expressCode(req, res);
+			});
+			break;
+		case "GET":
+			app.get(job.route, async (req, res) => {
+				await expressCode(req, res);
+			});
+			break;
+	}
+	const expressCode = async (req: express.Request, res: express.Response) => {
+		if (resolvePlugins(job.plugins, req, res).includes(false))
+			// Believe it or not, the code 418 I'm a teapot is the most appropiate one IMO.
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418
+			return res.status(418).send({ success: false, message: "Plugins didn't pass" });
+		res.send({ success: true, message: "Command is running" });
+
+		const stream_stdout = new PassThrough();
+		const stream_stderr = new PassThrough();
+		const parse_payload = (level: 'info' | 'error', payload: any) => ({
+			timestamp: new Date(),
+			message: String(payload),
+			level	
+		})
+		stream_stdout.on('data', (chunk) => {
+			jobLogs.push(parse_payload('info', chunk))
+		});
+		stream_stderr.on('data', chunk => {
+			jobLogs.push(parse_payload('error', chunk))
+		})
+		
+		for (const steps of job.steps) {
+			console.log(`Running step ${steps.name}`);
+			const cmd = execa(
+					"bash",
+					[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
+					{
+						cwd: steps.cwd,
+						shell: true,
+						env: { NT_ARGS: JSON.stringify(job.cmdArgs) },
+					},
+				)
+				cmd?.pipeStdout?.(stream_stdout)
+				cmd?.pipeStderr?.(stream_stderr)
+				
+				const exitCode = await new Promise((resolve) => {
+					cmd.once("exit", (code) => {
+						if (code !== 0) {
+							console.log(
+								`Step ${steps.name} failed with code ${code}`,
+							);
+						} else {
+							console.log(`Step ${steps.name} finished successfully`);
+						}
+						resolve(code);
+					});
+				});
+				if (exitCode !== 0) {			
+					db.insert(schema.stepLogs).values({
+						pkey: crypto.randomUUID(),
+						id: steps.id.toString(),
+						logs: jobLogs,
+						// i gtg but we need to register the job run first
+						// tysm seren for helping me <3 
+						// np
+					})
+				}
+				
+			}
+
+			// const cmd = execa(
+			// 	"bash",
+			// 	[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
+			// 	{
+			// 		cwd: steps.cwd,
+			// 		shell: true,
+			// 		env: { NT_ARGS: JSON.stringify(job.cmdArgs) },
+			// 	},
+			// );
+	}
+};
+
+app.ws('/ws/jobs/logs/:id', (ws, req) => {
+	const id = req.params.id
+	if (!id) {
+		ws.send(JSON.stringify({ success: false, error: 'No id provided' }))
+		return ws.close()
+	}
+})
+
 app.post('/wh/updateDocsJson', async (req, res) => {
 	const validate = validateJsonWebhook(req)
 	if (!validate) {
@@ -35,7 +133,7 @@ app.post('/wh/updateDocsJson', async (req, res) => {
 			success: false,
 			error: 'Invalid token'
 		})
-		return
+		return	
 	}
 	if (req.body.action !== 'released') {
 		res.send({
@@ -143,32 +241,7 @@ app.get('/ping', (req, res) => {
 	res.send('Pong')
 })
 
-for (const script of babashkaScripts) {
-	switch (script.method) {
-		case 'GET':
-			app.get(script.route, async (req, res) => {
-				const command = await execa('bb', [`babashka/${script.file}`])
-				res.send({
-					success: command.exitCode === 0 ? true : false,
-					cmdoutput: command.stdout
-				})
-			})
-			break;
-		case 'POST':
-			app.post(script.route, async (req, res) => {
-				const command = await execa('bb', [`babashka/${script.file}`])
-				res.send({
-					success: command.exitCode === 0 ? true : false,
-					cmdoutput: command.stdout
-				})
-			})
-			break;
-	}
-	console.log(`Babashka script ${script.file} was registered successfully in ${script.method} ${script.route}`)
-}
-
 const port = 4000
-
 app.listen(port, '::', () => {
 	console.log(`Server listening on [::]${port}`)
 })

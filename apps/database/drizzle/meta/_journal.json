@@ -15,6 +15,20 @@
       "when": 1703508532165,
       "tag": "0001_chief_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1704641056957,
+      "tag": "0002_rainy_catseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1704642053129,
+      "tag": "0003_nervous_songbird",
+      "breakpoints": true
     }
   ]
 }

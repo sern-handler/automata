@@ -26,9 +26,7 @@ export default function RootLayout({
       <body className={`font-sans ${roboto.variable}`}>
         <NextAuthProvider>
           <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-            <StyledEngineProvider injectFirst>
-                {children}
-            </StyledEngineProvider>
+              {children}
           </AppRouterCacheProvider>
         </NextAuthProvider>
       </body>
