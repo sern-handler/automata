@@ -1,6 +1,6 @@
 {
-  "id": "3848e593-34c7-49c2-8f2c-d9558a25f99e",
-  "prevId": "41dbaad4-435f-4581-bffc-c26780e20d73",
+  "id": "63e42e23-78aa-4b67-96a2-9b1bc6bf15c8",
+  "prevId": "5175ce72-68af-4e42-a300-0557071eb623",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -136,6 +136,40 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "jobsList": {
+      "name": "jobsList",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "steps": {
+          "name": "steps",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sernbinid": {
+          "name": "sernbinid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "session": {
       "name": "session",
       "schema": "",
@@ -258,8 +292,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

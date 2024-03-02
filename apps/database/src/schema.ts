@@ -4,8 +4,8 @@ import {
   text,
   primaryKey,
   integer,
-  smallserial,
-  json
+  json,
+  bigserial
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 
@@ -18,22 +18,10 @@ export const guideFeedback = pgTable("guideFeedback", {
 })
 
 export const jobsList = pgTable("jobsList", {
-  // note to reviewers:
-  // id is a smallserial and smallserials
-  // is an autoincrementing 2-byte integer
-  // so the max value is 32767
-  // is this fine? or should I use a bigserial (8-byte int)?
-  // https://orm.drizzle.team/docs/column-types/pg#smallserial
-  id: smallserial('id').primaryKey().notNull(),
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
   name: text("name").notNull(),
   steps: json("steps").notNull(),
-})
-
-export const stepLogs = pgTable("jobsLogs", {
-  pkey: text("pkey").notNull().primaryKey(),
-  id: text("id").notNull(),
-  jobId: text("stepId").notNull(),
-  logs: json('logs').$type<JobLog[]>().notNull(),
+  sernbinid: text("sernbinid").notNull(),
 })
 
 // next-auth schema

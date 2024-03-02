@@ -8,10 +8,10 @@ import rateLimit from 'express-rate-limit';
 import { Webhook } from 'simple-discord-webhooks';
 import { codeBlock } from './util/discordCodeBlock.js';
 import db, { schema } from 'database/dist/index.js';
-import jobs, { LogGroup } from './jobs.js';
+import jobs from './jobs.js';
 import expressWs from 'express-ws';
 import resolvePlugins from './util/resolvePlugins.js';
-import { PassThrough } from 'node:stream';
+import { stripIndents } from 'common-tags';
 
 const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
@@ -33,7 +33,6 @@ app.get('/', (req, res) => {
 })
 
 for (const job of jobs) {
-	const jobLogs: Logs[] = []
 	switch (job.method) {
 		case "POST":
 			app.post(job.route, async (req, res) => {
@@ -53,23 +52,20 @@ for (const job of jobs) {
 			return res.status(418).send({ success: false, message: "Plugins didn't pass" });
 		res.send({ success: true, message: "Command is running" });
 
-		const stream_stdout = new PassThrough();
-		const stream_stderr = new PassThrough();
 		const parse_payload = (level: 'info' | 'error', payload: any) => ({
 			timestamp: new Date(),
-			message: String(payload),
-			level	
+			message: payload.toString(),
+			level
 		})
-		stream_stdout.on('data', (chunk) => {
-			jobLogs.push(parse_payload('info', chunk))
-		});
-		stream_stderr.on('data', chunk => {
-			jobLogs.push(parse_payload('error', chunk))
-		})
+
+		const jobLogs = [] as { step: number, logs: Logs[] }[]
 		
-		for (const steps of job.steps) {
-			console.log(`Running step ${steps.name}`);
-			const cmd = execa(
+		try {
+			for (let i = 0; i < job.steps.length; i++) {
+				const steps = job.steps[i]!;
+				const logsToPush = [] as Logs[];
+				console.log(`Running step ${steps.name}`);
+				const cmd = execa(
 					"bash",
 					[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
 					{
@@ -78,43 +74,63 @@ for (const job of jobs) {
 						env: { NT_ARGS: JSON.stringify(job.cmdArgs) },
 					},
 				)
-				cmd?.pipeStdout?.(stream_stdout)
-				cmd?.pipeStderr?.(stream_stderr)
-				
-				const exitCode = await new Promise((resolve) => {
-					cmd.once("exit", (code) => {
-						if (code !== 0) {
-							console.log(
-								`Step ${steps.name} failed with code ${code}`,
-							);
-						} else {
+				cmd.stdout!.on('data', (data) => logsToPush.push(parse_payload('info', data.toString().replace(/\n$/, ""))));
+				cmd.stderr!.on('data', (data) => logsToPush.push(parse_payload('error', data.toString().replace(/\n$/, ""))));
+				await new Promise((resolve, reject) => {
+					cmd.once('exit', (code) => {
+						if (code === 0) {
 							console.log(`Step ${steps.name} finished successfully`);
+							logsToPush.push(parse_payload('info', 'Step finished successfully'));
+							jobLogs.push({ step: steps.id, logs: logsToPush });
+							resolve('nice');
+						} else {
+							console.log(`Step ${steps.name} failed with code ${code}`);
+							logsToPush.push(parse_payload('error', `Step failed with code ${code}`));
+							jobLogs.push({ step: steps.id, logs: logsToPush });
+							reject('stop it');
 						}
-						resolve(code);
 					});
 				});
-				if (exitCode !== 0) {			
-					db.insert(schema.stepLogs).values({
-						pkey: crypto.randomUUID(),
-						id: steps.id.toString(),
-						logs: jobLogs,
-						// i gtg but we need to register the job run first
-						// tysm seren for helping me <3 
-						// np
-					})
-				}
-				
 			}
+		} catch {}
 
-			// const cmd = execa(
-			// 	"bash",
-			// 	[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
-			// 	{
-			// 		cwd: steps.cwd,
-			// 		shell: true,
-			// 		env: { NT_ARGS: JSON.stringify(job.cmdArgs) },
-			// 	},
-			// );
+		const markdownText = stripIndents`
+			# Job ${job.name} finished
+			## Steps
+			${jobLogs.map((step) => {
+				return `### Step ${step.step}\n\`\`\`\n${step.logs.map((log) => {
+					return `${log.timestamp.toISOString()} - ${log.level.toUpperCase()} | ${log.message}`;
+				}).join('\n')}\n\`\`\``;
+			}).join('\n')}
+		`;
+		
+		const createSnippet = await fetch(`${process.env.SERN_BIN_ENDPOINT}/api/create`, {
+			method: 'POST',
+			headers: {
+				'Authorization': process.env.SERN_BIN_KEY!,
+			},
+			body: JSON.stringify({
+				fileName: `run-${job.name}-${new Date().toISOString()}.md`,
+				description: `Logs for ${job.name} job`,
+				authorId: process.env.SERN_BIN_USER,
+				lang: "markdown",
+				code: markdownText
+			})
+		}).then(async res => (await res.text()).replaceAll('"', ''))
+		const dbWrite = (await db.insert(schema.jobsList).values({
+			name: job.name,
+			steps: job.steps,
+			sernbinid: createSnippet
+		}).returning())[0]
+
+		const webhook = new Webhook(new URL(process.env.AUTOMATA_CHANNEL_WEBHOOK!), 'Job Logs (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
+		webhook.send(`Job #${dbWrite?.id} ${job.name} finished`, [{
+			color: jobLogs.every((step) => step.logs.every((log) => log.level === 'info')) ? 0x00ff00 : 0xff0000,
+			description: `Job ${job.name} finished with ${jobLogs.every((step) => step.logs.every((log) => log.level === 'info')) ? 'no errors' : 'errors'}`,
+			fields: [
+				{ name: 'Snippet', value: `[Here](https://bin.sern.dev/s/${createSnippet})`, inline: true },
+			],
+		}])
 	}
 };
 

@@ -1,0 +1,1 @@
+ALTER TABLE "jobsList" ADD COLUMN "sernbinid" text NOT NULL;
