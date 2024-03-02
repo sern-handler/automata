@@ -52,7 +52,7 @@ export default [
         name: 'Test',
         method: 'GET',
         route: '/test',
-        plugins: [],
+        plugins: ['apiToken'],
         cmdArgs: {
             randomVariable: 'hey this is a variable'
         },
