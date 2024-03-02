@@ -1,0 +1,1 @@
+yarn typedoc-json

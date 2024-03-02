@@ -1,11 +1,11 @@
-import type { Request } from "express";
+import type { Request, Response } from "express";
 import * as crypto from 'crypto';
 
-export function validateJsonWebhook(request: Request) {
+export default function validateJsonWebhook(request: Request, _response?: Response) {
 
     // calculate the signature
     const expectedSignature = "sha256=" +
-        crypto.createHmac("sha256", process.env.TOKEN!)
+        crypto.createHmac("sha256", process.env.JSONWEBHOOK_TOKEN!)
             .update(JSON.stringify(request.body))
             .digest("hex");
 

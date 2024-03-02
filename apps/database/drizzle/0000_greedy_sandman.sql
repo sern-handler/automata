@@ -13,6 +13,19 @@ CREATE TABLE IF NOT EXISTS "account" (
 	CONSTRAINT "account_provider_providerAccountId_pk" PRIMARY KEY("provider","providerAccountId")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "guideFeedback" (
+	"id" text PRIMARY KEY NOT NULL,
+	"feedback" text NOT NULL,
+	"route" text NOT NULL,
+	"inputText" text
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "jobsList" (
+	"id" bigserial PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"steps" json NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "session" (
 	"sessionToken" text PRIMARY KEY NOT NULL,
 	"userId" text NOT NULL,

@@ -1,5 +1,5 @@
 node_modules
-.env
+*.env
 /apps/api/repos
 dist
 
