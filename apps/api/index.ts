@@ -257,7 +257,7 @@ app.get('/ping', (req, res) => {
 	res.send('Pong')
 })
 
-const port = 4000
+const port = process.env.PORT || 4000
 app.listen(port, '0.0.0.0', () => {
 	console.log(`Server listening on [::]${port}`)
 })
