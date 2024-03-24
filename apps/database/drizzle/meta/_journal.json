@@ -15,6 +15,13 @@
       "when": 1709334685582,
       "tag": "0001_burly_carnage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1711311565795,
+      "tag": "0002_soft_lilith",
+      "breakpoints": true
     }
   ]
 }
