@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN bash ./apps/api/util/setup.sh
+RUN yarn setup
 
 RUN yarn
 RUN yarn build:database

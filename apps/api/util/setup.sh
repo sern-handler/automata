@@ -10,16 +10,12 @@ mkdir repos
 cd repos
 echo " done"
 
-if [$IS_SRIZAN == "true"]
-then
-    echo -ne "Detected Sr Izan on development environment. chowning repos folder"
-    sudo chown -R srizan:srizan .
+# check if command "sern" exists
+if ! [ -x "$(command -v sern)" ]; then
+  echo -ne "Installing sern CLI"
+    npm install -g @sern/cli
     echo " done"
 fi
-
-echo -ne "Installing sern CLI"
-npm install -g @sern/cli
-echo " done"
 
 echo "Cloning repos"
 # handler (clone it as sernHandlerV2)

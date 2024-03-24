@@ -16,7 +16,8 @@
     "start:api": "yarn workspace api start",
     "start:frontend": "yarn workspace frontend start",
     "db:deploy": "yarn workspace database deploy",
-    "dev": "concurrently \"yarn workspace api dev\" \"yarn workspace database dev\""
+    "dev": "concurrently \"yarn workspace api dev\" \"yarn workspace database dev\"",
+    "setup": "bash apps/api/util/setup.sh"
   },
   "//": [
     "postgres: \"cd dev/postgresql && docker compose up\""

@@ -32,6 +32,7 @@ app.get('/', (req, res) => {
 	res.send('hi this is the api what did you even expect')
 })
 
+let jobRunning = false
 for (const job of jobs) {
 	switch (job.method) {
 		case "POST":
@@ -45,12 +46,15 @@ for (const job of jobs) {
 			});
 			break;
 	}
+
 	const expressCode = async (req: express.Request, res: express.Response) => {
-		if (resolvePlugins(job.plugins, req, res).includes(false))
-			// Believe it or not, the code 418 I'm a teapot is the most appropiate one IMO.
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418
+		const pluginsResult = await resolvePlugins(job.plugins, req, res);
+		if (pluginsResult.includes(false)) {
 			return res.status(418).send({ success: false, message: "Plugins didn't pass" });
+		}
+
 		res.send({ success: true, message: "Command is running" });
+		jobRunning = true;
 
 		const parse_payload = (level: 'info' | 'error', payload: any) => ({
 			timestamp: new Date(),
@@ -59,46 +63,57 @@ for (const job of jobs) {
 		})
 
 		const jobLogs = [] as { step: number, logs: Logs[] }[]
-		
+		let jobSuccessful = true
+
 		try {
 			for (let i = 0; i < job.steps.length; i++) {
 				const steps = job.steps[i]!;
 				const logsToPush = [] as Logs[];
+
 				console.log(`Running step ${steps.name}`);
+
 				const cmd = execa(
 					"bash",
 					[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
 					{
 						cwd: steps.cwd,
 						shell: true,
-						env: { NT_ARGS: JSON.stringify(job.cmdArgs) },
+						env: {
+							NT_ARGS: JSON.stringify({
+								...job.cmdArgs,
+								requestBody: req.body,
+							})
+						},
 					},
 				)
 				cmd.stdout!.on('data', (data) => logsToPush.push(parse_payload('info', data.toString().replace(/\n$/, ""))));
 				cmd.stderr!.on('data', (data) => logsToPush.push(parse_payload('error', data.toString().replace(/\n$/, ""))));
 				await new Promise((resolve, reject) => {
 					cmd.once('exit', (code) => {
-						if (code === 0) {
+						if (code === 0 || !code) {
 							console.log(`Step ${steps.name} finished successfully`);
 							logsToPush.push(parse_payload('info', 'Step finished successfully'));
 							jobLogs.push({ step: steps.id, logs: logsToPush });
+							jobSuccessful = true;
 							resolve('nice');
 						} else {
 							console.log(`Step ${steps.name} failed with code ${code}`);
 							logsToPush.push(parse_payload('error', `Step failed with code ${code}`));
 							jobLogs.push({ step: steps.id, logs: logsToPush });
+							jobSuccessful = false;
 							reject('stop it');
 						}
 					});
 				});
 			}
 		} catch {}
+		jobRunning = false
 
 		const markdownText = stripIndents`
 			# Job ${job.name} finished
 			## Steps
 			${jobLogs.map((step) => {
-				return `### Step ${step.step}\n\`\`\`\n${step.logs.map((log) => {
+				return `### Step ${step.step}: ${job.steps.find(s => s.id === step.step)?.name}\n\`\`\`\n${step.logs.map((log) => {
 					return `${log.timestamp.toISOString()} - ${log.level.toUpperCase()} | ${log.message}`;
 				}).join('\n')}\n\`\`\``;
 			}).join('\n')}
@@ -125,22 +140,14 @@ for (const job of jobs) {
 
 		const webhook = new Webhook(new URL(process.env.AUTOMATA_CHANNEL_WEBHOOK!), 'Job Logs (by automata)', 'https://avatars.githubusercontent.com/u/129876409?v=4')
 		webhook.send(`Job #${dbWrite?.id} ${job.name} finished`, [{
-			color: jobLogs.every((step) => step.logs.every((log) => log.level === 'info')) ? 0x00ff00 : 0xff0000,
-			description: `Job ${job.name} finished with ${jobLogs.every((step) => step.logs.every((log) => log.level === 'info')) ? 'no errors' : 'errors'}`,
+			color: jobSuccessful ? 0x00ff00 : 0xff0000,
+			description: `Job ${job.name} finished with ${jobSuccessful ? 'no errors' : 'errors'}`,
 			fields: [
 				{ name: 'Snippet', value: `[Here](https://bin.sern.dev/s/${createSnippet})`, inline: true },
 			],
 		}])
 	}
 };
-
-app.ws('/ws/jobs/logs/:id', (ws, req) => {
-	const id = req.params.id
-	if (!id) {
-		ws.send(JSON.stringify({ success: false, error: 'No id provided' }))
-		return ws.close()
-	}
-})
 
 app.post('/wh/updateDocsJson', async (req, res) => {
 	const validate = validateJsonWebhook(req)
@@ -258,6 +265,6 @@ app.get('/ping', (req, res) => {
 })
 
 const port = 4000
-app.listen(port, '::', () => {
+app.listen(port, '0.0.0.0', () => {
 	console.log(`Server listening on [::]${port}`)
 })

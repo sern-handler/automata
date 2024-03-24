@@ -2,6 +2,7 @@ node_modules
 *.env
 /apps/api/repos
 dist
+/ssh
 
 .yarn/*
 !.yarn/patches
