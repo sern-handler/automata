@@ -39,6 +39,11 @@ echo "Installing npm packages"
 # website
 echo -ne "- website"
 cd website
+
+# this had to be done
+rm yarn.lock
+touch yarn.lock
+
 yarn > /dev/null 2>&1
 cd ..
 echo " done"
