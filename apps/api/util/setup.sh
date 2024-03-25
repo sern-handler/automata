@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "SERN AUTOMATA SETUP SCRIPT"
-cd apps/api
 
 rm -rf repos/
 
@@ -10,16 +9,13 @@ mkdir repos
 cd repos
 echo " done"
 
-if [$IS_SRIZAN == "true"]
-then
-    echo -ne "Detected Sr Izan on development environment. chowning repos folder"
-    sudo chown -R srizan:srizan .
+if [ -x "$(command -v sern)" ]; then
+    echo "sern CLI already installed"
+else
+    echo -ne "Installing sern CLI"
+    npm install -g @sern/cli
     echo " done"
 fi
-
-echo -ne "Installing sern CLI"
-npm install -g @sern/cli
-echo " done"
 
 echo "Cloning repos"
 # handler (clone it as sernHandlerV2)

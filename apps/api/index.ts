@@ -69,7 +69,7 @@ for (const job of jobs) {
 					"bash",
 					[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
 					{
-						cwd: steps.cwd,
+						cwd: steps.cwd.startsWith('repos/') ? `${cwd}/../../${steps.cwd}` : steps.cwd,
 						shell: true,
 						env: { NT_ARGS: JSON.stringify(job.cmdArgs) },
 					},
