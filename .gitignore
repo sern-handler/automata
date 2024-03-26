@@ -1,6 +1,7 @@
 node_modules
 *.env
 /apps/api/repos
+/repos
 dist
 /ssh
 

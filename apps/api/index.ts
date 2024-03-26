@@ -80,7 +80,7 @@ for (const job of jobs) {
 					"bash",
 					[`${cwd}/scripts/${job.stepsMainDir}/${steps.script}`],
 					{
-						cwd: steps.cwd,
+						cwd: steps.cwd.startsWith('repos/') ? `${cwd}/../../${steps.cwd}` : steps.cwd,
 						shell: true,
 						env: {
 							NT_ARGS: JSON.stringify({
@@ -268,7 +268,7 @@ app.get('/ping', (req, res) => {
 	res.send('Pong')
 })
 
-const port = 4000
+const port = Number(process.env.PORT!) || 4000
 app.listen(port, '0.0.0.0', () => {
 	console.log(`Server listening on [::]${port}`)
 })

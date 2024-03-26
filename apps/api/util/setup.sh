@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "SERN AUTOMATA SETUP SCRIPT"
-cd apps/api
 
 rm -rf repos/
 
@@ -10,9 +9,10 @@ mkdir repos
 cd repos
 echo " done"
 
-# check if command "sern" exists
-if ! [ -x "$(command -v sern)" ]; then
-  echo -ne "Installing sern CLI"
+if [ -x "$(command -v sern)" ]; then
+    echo "sern CLI already installed"
+else
+    echo -ne "Installing sern CLI"
     npm install -g @sern/cli
     echo " done"
 fi
@@ -39,6 +39,11 @@ echo "Installing npm packages"
 # website
 echo -ne "- website"
 cd website
+
+# this had to be done
+rm yarn.lock
+touch yarn.lock
+
 yarn > /dev/null 2>&1
 cd ..
 echo " done"

@@ -3,7 +3,7 @@ export default [
         name: 'Update docs',
         method: 'POST',
         route: '/wh/updateDocs',
-        plugins: ['validateJsonWebhook'],
+        plugins: [],
         cmdArgs: {
             githubToken: process.env.GHTOKEN!,
             email: process.env.EMAIL!
