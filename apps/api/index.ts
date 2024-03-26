@@ -17,6 +17,10 @@ const devMode = process.argv[2] === '--dev';
 if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpscare)')
 const cwd = process.cwd()
 
+console.log('Setting correct permissions for Github SSH key...')
+await execa('chmod', ['400', '/ssh/github'], { shell: true })
+console.log('Permissions done!')
+
 const { app } = expressWs(express())
 app.use(express.json())
 app.use(cors())
