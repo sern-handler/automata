@@ -40,13 +40,14 @@ echo "Installing npm packages"
 echo -ne "- website"
 cd website
 
+echo -ne " (resetting yarn lock)"
 # this had to be done
 rm yarn.lock
 touch yarn.lock
 
 yarn > /dev/null 2>&1
 cd ..
-echo " done"
+echo " done both"
 # handler
 echo -ne "- handler"
 cd sernHandlerV2
@@ -61,9 +62,9 @@ cd ..
 echo " done"
 
 echo "SSH keys part"
-
 echo -ne "Adding ssh config"
 rm ~/.ssh/config
+mkdir ~/.ssh
 cp ./ssh.conf ~/.ssh/config
 echo " done"
 
