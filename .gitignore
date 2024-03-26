@@ -3,6 +3,7 @@ node_modules
 /apps/api/repos
 /repos
 dist
+/ssh
 
 .yarn/*
 !.yarn/patches

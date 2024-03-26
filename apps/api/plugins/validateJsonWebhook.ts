@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import * as crypto from 'crypto';
 
-export default function validateJsonWebhook(request: Request, _response?: Response) {
+export default async function validateJsonWebhook(request: Request, _response?: Response) {
 
     // calculate the signature
     const expectedSignature = "sha256=" +

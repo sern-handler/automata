@@ -1,6 +1,7 @@
-GITHUBTOKEN=$(echo $@ | jq ".githubToken")
-EMAIL=$(echo $@ | jq ".email")
+GITHUBTOKEN=$(echo $NT_ARGS | jq ".githubToken")
+EMAIL=$(echo $NT_ARGS | jq ".email")
 
 git add .
-git -c user.name="sern bot" -c user.email="$EMAIL" commit -m "chore: update typedoc"
-git push https://sernbot:$GITHUBTOKEN@github.com/sern-handler/sern-community.git
+git -c user.name="sern bot" -c user.email="$EMAIL" commit -m "chore: update api documentation"
+git remote set-url origin git@github.com:sern-handler/sern-community.git
+git push --force

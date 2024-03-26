@@ -71,6 +71,22 @@ export default [
                 script: 'variable.sh'
             }
         ]
+    },
+    {
+        name: 'git pull repo',
+        method: 'POST',
+        route: '/wh/push',
+        plugins: ['validateJsonWebhook', 'gitRepoExists'],
+        cmdArgs: {},
+        stepsMainDir: 'gitPull',
+        steps: [
+            {
+                id: 1,
+                name: 'Run git pull',
+                cwd: 'repos',
+                script: 'gitPull.sh'
+            }
+        ]
     }
 ] satisfies Jobs[]
 

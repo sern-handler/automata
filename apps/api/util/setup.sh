@@ -60,5 +60,12 @@ yarn > /dev/null 2>&1
 cd ..
 echo " done"
 
+echo "SSH keys part"
+
+echo -ne "Adding ssh config"
+rm ~/.ssh/config
+cp ./ssh.conf ~/.ssh/config
+echo " done"
+
 # go back to the initial folder (for development purposes)
 cd ..
