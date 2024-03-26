@@ -18,7 +18,7 @@ if (devMode) console.log('You\'re a developer 😎 (sorry for that emoji jumpsca
 const cwd = process.cwd()
 
 console.log('Setting correct permissions for Github SSH key...')
-await execa('chmod', ['400', '/ssh/github'], { shell: true })
+await execa('chmod', ['400', '-R', '/ssh'], { shell: true })
 console.log('Permissions done!')
 
 const { app } = expressWs(express())
