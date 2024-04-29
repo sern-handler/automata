@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "b0d382b3-a73f-4dc3-b10e-dc36aa66506c",
+  "id": "97b48966-3e7f-4b02-97ef-92ea25d36f18",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "rtmAuthor": {
@@ -18,7 +18,7 @@
           "name": "mergerId",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
