@@ -1,23 +1,22 @@
 {
   "scripts": {
-    "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts",
+    "start": "vercel dev",
+    "deploy": "vercel",
     "migrate": "drizzle-kit generate:sqlite && node --loader ts-node/esm src/db/migrate.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^1.11.1",
     "@libsql/client": "^0.6.0",
     "@octokit/webhooks-types": "^7.5.1",
     "drizzle-orm": "^0.30.9",
-    "hono": "^4.2.5",
+    "hono": "^4.2.9",
     "octokit": "^3.2.0"
   },
-  "type": "module",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240403.0",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.20.17",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5",
-    "wrangler": "^3.47.0"
-  }
+    "vercel": "^32.4.1"
+  },
+  "type": "module"
 }

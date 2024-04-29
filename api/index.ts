@@ -1,33 +1,33 @@
-import { Context, Hono } from 'hono'
-import { drizzle } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client/web";
-import * as schema from './db/schema'
+import { createClient } from '@libsql/client';
 import { IssueCommentEvent } from '@octokit/webhooks-types';
+import { drizzle } from 'drizzle-orm/libsql';
+import { Hono } from 'hono'
+import { handle } from '@hono/node-server/vercel'
 import { Octokit } from 'octokit';
+import * as schema from '../db/schema.js'
 
-const octokit = new Octokit({ auth: `personal-access-token123` });
-
-export type Bindings = {
-  TURSO_URL: string,
-  TURSO_TOKEN: string,
-  GITHUB_API_TOKEN: string,
+export const config = {
+  api: {
+    bodyParser: false,
+  },
 }
 
-const app = new Hono()
+const turso = createClient({
+  url: process.env.TURSO_URL!,
+  authToken: process.env.TURSO_TOKEN!,
+})
+const octokit = new Octokit({ auth: process.env.GITHUB_API_TOKEN! });
+const db = drizzle(turso, { schema })
 
-app.get('/', async (c) => {
-  const { db } = importLibs(c)
-  const fetch = await db.insert(schema.rtmAuthor).values({
-    authorId: '1',
-    mergerId: '2',
-  }).execute()
-  return c.json(fetch.toJSON())
+const app = new Hono().basePath('/api')
+
+app.get('/', (c) => {
+  return c.json({ message: 'Hello Hono!' })
 })
 
 app.post('/ev/readyToMerge', async (c) => {
   const body = await c.req.json() as IssueCommentEvent
   const bodyUrl = body.issue.html_url.split('/')
-  const { db, octokit } = importLibs(c)
   let isRTM = false
 
   if (bodyUrl[bodyUrl.length - 2] !== 'pull')
@@ -58,12 +58,4 @@ app.post('/ev/readyToMerge', async (c) => {
   return c.json({ ok: true })
 })
 
-export default app
-function importLibs(c: Context) {
-  const turso = createClient({
-    url: c.env.TURSO_URL!,
-    authToken: c.env.TURSO_TOKEN!,
-  })
-  const octokit = new Octokit({ auth: c.env.GITHUB_API_TOKEN! });
-  return { db: drizzle(turso, { schema }), octokit: octokit };
-}
+export default handle(app)
