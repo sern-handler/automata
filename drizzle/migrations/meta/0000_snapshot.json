@@ -1,12 +1,19 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "97b48966-3e7f-4b02-97ef-92ea25d36f18",
+  "id": "bea950d4-887d-4379-b748-ad1785376629",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "rtmAuthor": {
       "name": "rtmAuthor",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
         "authorId": {
           "name": "authorId",
           "type": "text",
@@ -19,6 +26,20 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false
+        },
+        "repo": {
+          "name": "repo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "issueNumber": {
+          "name": "issueNumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         }
       },

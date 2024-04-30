@@ -1,9 +1,8 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
-import dotenv from 'dotenv'
+import 'dotenv/config'
 import * as schema from './schema.js'
 import { migrate } from "drizzle-orm/libsql/migrator";
-dotenv.config({ path: './.dev.vars' })
 
 const turso = createClient({
     url: process.env.TURSO_URL!,
