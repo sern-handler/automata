@@ -35,11 +35,18 @@ jobs:
         run: |
           mv docusaurus.config.js docgen.docusaurus.config.js
           mv original.docusaurus.config.js docusaurus.config.js
-      - name: Push to repo
+      - name: Commit changes
         run: |
+          git config --global user.email "129876409+sernbot@users.noreply.github.com"
+          git config --global user.name "sernbot"
           git add .
           git commit -m "docs: Update API section"
-          git push
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.AUTOMATA_TOKEN }}
+          branch: 'main'
+          repository: 'sern-handler/website'
   community-bot:
     runs-on: ubuntu-latest
     steps:
@@ -65,8 +72,15 @@ jobs:
           cd ${{ github.workspace }}
       - name: Generate API docs
         run: typedoc --json ./docs.json --pretty --entryPoints ../sernHandlerV2/src/index.ts --tsconfig ../sernHandlerV2/tsconfig.json --excludeExternals
-      - name: Push to repo
+      - name: Add and commit changes
         run: |
+          git config --global user.email "129876409+sernbot@users.noreply.github.com"
+          git config --global user.name "sernbot"
           git add .
-          git commit -m "docs: Update API section"
-          git push
+          git commit -m "docs: Update docs.json"
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.AUTOMATA_TOKEN }}
+          branch: 'main'
+          repository: 'sern-handler/sern-community'
