@@ -22,7 +22,7 @@ jobs:
         run: |
           git clone https://github.com/sern-handler/handler.git ../sernHandlerV2
           cd ../sernHandlerV2
-          yarn --inmutable
+          yarn --immutable
           yarn build:dev
           cd ${{ github.workspace }}
       - name: Move docusaurus config files
@@ -53,14 +53,14 @@ jobs:
         with:
           node-version: '20.x'
       - name: Install typedoc
-        run: yarn global add typedoc
+        run: npm i -g typedoc
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Clone handler repo & install deps
         run: |
           git clone https://github.com/sern-handler/handler.git ../sernHandlerV2
           cd ../sernHandlerV2
-          yarn --inmutable
+          yarn --immutable
           yarn build:dev
           cd ${{ github.workspace }}
       - name: Generate API docs
