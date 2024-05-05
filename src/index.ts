@@ -109,11 +109,12 @@ serve(app).on('listening', async () => {
 
 process.stdin.on('data', async (data) => {
   if (data.toString().trim() === 'test thing') {
+    console.log('Testing thing')
     await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
       owner: 'sern-handler',
       repo: 'automata',
       workflow_id: 'test.yml',
-      ref: 'main',
+      ref: 'feat/the-rewrite',
       headers: {
         'X-GitHub-Api-Version': '2022-11-28'
       }

@@ -10,5 +10,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Run Hello World
         run: echo "Hello World"
-      - name: cat drizzle.config.ts
-        run: cat drizzle.config.ts
+      - name: cat .yarnrc.yml
+        run: cat .yarnrc.yml
