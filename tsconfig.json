@@ -9,5 +9,5 @@
     "outDir": "./dist",
     "rootDir": "./src",
   },
-  "exclude": ["drizzle.config.ts"]
+  "exclude": ["drizzle.config.ts", "dist"]
 }

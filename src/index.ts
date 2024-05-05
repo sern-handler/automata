@@ -7,6 +7,7 @@ import { Octokit } from 'octokit';
 import * as schema from './db/schema.js'
 import 'dotenv/config'
 import { and, eq } from 'drizzle-orm';
+import validateJsonWebhook from './util/validateJsonWebhook.js';
 
 const devTeam = [
   'SrIzan10',
@@ -102,6 +103,29 @@ app.post('/ev/readyToMerge', async (c) => {
   return c.json({ ok: true })
 })
 
+app.post('/ev/updateDocsJson', async (c) => {
+  const validate = validateJsonWebhook(c)
+	if (!validate)
+		return c.json({
+			success: false,
+			error: 'Invalid token'
+		}, 401)
+	if ((await c.req.json()).action !== 'released')
+		return c.json({
+			success: true,
+			error: 'Token valid, but ignoring action...'
+		}, 418)
+  await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+      owner: 'sern-handler',
+      repo: 'automata',
+      workflow_id: 'website-bot-update.yml',
+      ref: 'main',
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+  })
+})
+
 serve(app).on('listening', async () => {
   console.log('Hono is listening on port 3000')
   console.log(`Github login as ${(await octokit.rest.users.getAuthenticated()).data.login}`)
@@ -110,15 +134,7 @@ serve(app).on('listening', async () => {
 process.stdin.on('data', async (data) => {
   if (data.toString().trim() === 'test thing') {
     console.log('Testing thing')
-    await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-      owner: 'sern-handler',
-      repo: 'automata',
-      workflow_id: 'website-bot-update.yml',
-      ref: 'main',
-      headers: {
-        'X-GitHub-Api-Version': '2022-11-28'
-      }
-    })
+    // leaving for other testing purposes
   }
 })
 
