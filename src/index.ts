@@ -113,8 +113,8 @@ process.stdin.on('data', async (data) => {
     await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
       owner: 'sern-handler',
       repo: 'automata',
-      workflow_id: 'test.yml',
-      ref: 'feat/the-rewrite',
+      workflow_id: 'website-bot-update.yml',
+      ref: 'main',
       headers: {
         'X-GitHub-Api-Version': '2022-11-28'
       }
