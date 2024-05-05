@@ -96,7 +96,7 @@ app.post('/ev/readyToMerge', async (c) => {
         owner: body.repository.owner.login,
         repo: body.repository.name,
       })
-      break
+      break;
   }
 
   return c.json({ ok: true })
@@ -105,6 +105,20 @@ app.post('/ev/readyToMerge', async (c) => {
 serve(app).on('listening', async () => {
   console.log('Hono is listening on port 3000')
   console.log(`Github login as ${(await octokit.rest.users.getAuthenticated()).data.login}`)
+})
+
+process.stdin.on('data', async (data) => {
+  if (data.toString().trim() === 'test thing') {
+    await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+      owner: 'sern-handler',
+      repo: 'automata',
+      workflow_id: 'test.yml',
+      ref: 'main',
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    })
+  }
 })
 
 async function react(owner: string, repo: string, commentId: number, reaction: Reaction) {
