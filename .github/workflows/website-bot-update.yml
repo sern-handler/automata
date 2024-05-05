@@ -18,6 +18,13 @@ jobs:
           node-version: '20.x'
       - name: Install dependencies
         run: yarn --frozen-lockfile
+      - name: Clone handler repo & install deps
+        run: |
+          git clone https://github.com/sern-handler/handler.git ../sernHandlerV2
+          cd ../sernHandlerV2
+          yarn --inmutable
+          yarn build:dev
+          cd ${{ github.workspace }}
       - name: Move docusaurus config files
         run: |
           mv ./docusaurus.config.js ./original.docusaurus.config.js
@@ -45,13 +52,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
+      - name: Install typedoc
+        run: yarn global add typedoc
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Clone handler repo & install deps
         run: |
           git clone https://github.com/sern-handler/handler.git ../sernHandlerV2
           cd ../sernHandlerV2
-          yarn --frozen-lockfile
+          yarn --inmutable
           yarn build:dev
           cd ${{ github.workspace }}
       - name: Generate API docs
