@@ -11,7 +11,9 @@ import validateJsonWebhook from './util/validateJsonWebhook.js';
 
 const devTeam = [
   'SrIzan10',
-  'jacoobes'
+  'jacoobes',
+  'EvolutionX-10',
+  'Murtatrxx'
 ]
 
 const turso = createClient({
@@ -28,6 +30,12 @@ app.get('/', (c) => {
 })
 
 app.post('/ev/readyToMerge', async (c) => {
+  const validate = await validateJsonWebhook(c)
+	if (!validate)
+		return c.json({
+			success: false,
+			error: 'Invalid token'
+		}, 401)
   const body = await c.req.json() as IssueCommentEvent
 
   if (!devTeam.includes(body.comment.user.login)) {
@@ -104,7 +112,7 @@ app.post('/ev/readyToMerge', async (c) => {
 })
 
 app.post('/ev/updateDocsJson', async (c) => {
-  const validate = validateJsonWebhook(c)
+  const validate = await validateJsonWebhook(c)
 	if (!validate)
 		return c.json({
 			success: false,
@@ -124,6 +132,7 @@ app.post('/ev/updateDocsJson', async (c) => {
         'X-GitHub-Api-Version': '2022-11-28'
       }
   })
+  return c.json({ success: true })
 })
 
 serve(app).on('listening', async () => {
