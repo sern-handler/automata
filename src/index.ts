@@ -31,7 +31,7 @@ app.get('/', (c) => {
 
 app.post('/ev/readyToMerge', async (c) => {
   const validate = await validateJsonWebhook(c)
-	if (!validate)
+  if (!validate)
 		return c.json({
 			success: false,
 			error: 'Invalid token'
@@ -113,7 +113,7 @@ app.post('/ev/readyToMerge', async (c) => {
 
 app.post('/ev/updateDocsJson', async (c) => {
   const validate = await validateJsonWebhook(c)
-	if (!validate)
+  if (!validate)
 		return c.json({
 			success: false,
 			error: 'Invalid token'
