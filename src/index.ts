@@ -17,8 +17,8 @@ const devTeam = [
 ]
 
 const turso = createClient({
-  url: process.env.TURSO_URL!,
-  authToken: process.env.TURSO_TOKEN!,
+  url: process.env.DB_URL!,
+  authToken: process.env.DB_TOKEN!,
 })
 const octokit = new Octokit({ auth: process.env.GH_API_TOKEN! });
 const db = drizzle(turso, { schema })
