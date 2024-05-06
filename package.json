@@ -1,11 +1,13 @@
 {
   "name": "automata",
   "version": "2.0.0",
+  "license": "MIT",
   "scripts": {
     "db:deploy": "drizzle-kit generate:sqlite && yarn db:migrate",
     "db:migrate": "node --loader ts-node/esm src/db/migrate.ts",
     "dev": "yarn studio & tsc-watch -w --onSuccess \"node dist/index.js\"",
     "build": "tsc",
+    "start": "node dist/index.js",
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
