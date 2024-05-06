@@ -1,21 +1,13 @@
 {
-	"compilerOptions": {
-		"target": "ESNext",
-		"strict": true,
-		"noUncheckedIndexedAccess": true,
-		// "lib": ["ES2019", "ES2021.String"],
-		"esModuleInterop": true,
-		"allowJs": true,
-		"allowSyntheticDefaultImports": true,
-		"moduleResolution": "node",
-		"module": "ESNext",
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"isolatedModules": true,
-		"declaration": true,
-		"paths": {
-			"@database/*": ["./node_modules/database/src/*"],
-		}
-	},
-	"exclude": []
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+  },
+  "exclude": ["drizzle.config.ts", "dist"]
 }

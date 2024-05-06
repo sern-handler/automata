@@ -1,30 +1,28 @@
 {
-  "name": "sern-automata",
-  "version": "1.0.0",
-  "private": true,
-  "repository": "https://github.com/sern-handler/automata.git",
-  "author": "Izan Gil <66965250+SrIzan10@users.noreply.github.com>",
-  "license": "MIT",
-  "type": "module",
-  "workspaces": [
-    "apps/*",
-    "!repos/*"
-  ],
+  "name": "automata",
+  "version": "2.0.0",
   "scripts": {
-    "build:api": "yarn workspace api build",
-    "build:database": "yarn workspace database build",
-    "start:api": "yarn workspace api start",
-    "db:deploy": "yarn workspace database deploy",
-    "dev": "concurrently \"yarn workspace api dev\" \"yarn workspace database dev\"",
-    "setup": "bash apps/api/util/setup.sh"
+    "db:deploy": "drizzle-kit generate:sqlite && yarn db:migrate",
+    "db:migrate": "node --loader ts-node/esm src/db/migrate.ts",
+    "dev": "yarn studio & tsc-watch -w --onSuccess \"node dist/index.js\"",
+    "build": "tsc",
+    "studio": "drizzle-kit studio"
   },
-  "//": [
-    "postgres: \"cd dev/postgresql && docker compose up\""
-  ],
+  "dependencies": {
+    "@hono/node-server": "^1.11.1",
+    "@libsql/client": "^0.6.0",
+    "@octokit/webhooks-types": "^7.5.1",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.30.9",
+    "hono": "^4.2.9",
+    "octokit": "^3.2.0"
+  },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "tsc-node": "^0.0.3",
-    "typescript": "^5.3.3"
+    "drizzle-kit": "^0.20.17",
+    "ts-node": "^10.9.2",
+    "tsc-watch": "^6.2.0",
+    "typescript": "^5.4.5"
   },
-  "packageManager": "yarn@4.0.2"
+  "type": "module"
 }
