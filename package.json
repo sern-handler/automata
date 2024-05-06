@@ -1,6 +1,9 @@
 {
+  "name": "automata",
+  "version": "2.0.0",
   "scripts": {
-    "db:migrate": "drizzle-kit generate:sqlite && node --loader ts-node/esm src/db/migrate.ts",
+    "db:deploy": "drizzle-kit generate:sqlite && yarn db:migrate",
+    "db:migrate": "node --loader ts-node/esm src/db/migrate.ts",
     "dev": "yarn studio & tsc-watch -w --onSuccess \"node dist/index.js\"",
     "build": "tsc",
     "studio": "drizzle-kit studio"
