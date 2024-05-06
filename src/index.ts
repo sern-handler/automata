@@ -148,7 +148,7 @@ process.stdin.on('data', async (data) => {
 })
 
 async function react(owner: string, repo: string, commentId: number, reaction: Reaction) {
-  return await octokit.request('POST /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions', {
+  return octokit.request('POST /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions', {
     owner,
     repo,
     comment_id: commentId,
