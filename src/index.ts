@@ -135,8 +135,12 @@ app.post('/ev/updateDocsJson', async (c) => {
   return c.json({ success: true })
 })
 
-serve(app).on('listening', async () => {
-  console.log('Hono is listening on port 3000')
+const port = Number(process.env.PORT || 3000)
+serve({
+  fetch: app.fetch,
+  port,
+}).on('listening', async () => {
+  console.log(`Hono is listening on port ${port}`)
   console.log(`Github login as ${(await octokit.rest.users.getAuthenticated()).data.login}`)
 })
 
