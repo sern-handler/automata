@@ -104,6 +104,7 @@ app.post('/ev/readyToMerge', async (c) => {
         pull_number: body.issue.number,
         owner: body.repository.owner.login,
         repo: body.repository.name,
+        merge_method: 'squash',
       })
       break;
   }
