@@ -37,19 +37,21 @@ app.post('/ev/readyToMerge', async (c) => {
 			error: 'Invalid token'
 		}, 401)
   const body = await c.req.json() as IssueCommentEvent
+  const lcComment = body.comment.body.toLowerCase()
 
-  if (!devTeam.includes(body.comment.user.login)) {
+  if (!lcComment.includes('@sernbot'))
+    return c.json({ ok: false, message: 'not mentioned' }, 418)
+  if (!devTeam.includes(body.comment.user.login))
     return c.json({ ok: false, message: 'not part of devteam' }, 418)
-  }
 
   const bodyUrl = body.issue.html_url.split('/')
   let isRTM = null
 
   if (bodyUrl[bodyUrl.length - 2] !== 'pull')
     return c.json({ ok: false, message: 'not a pull request' }, 418)
-  if (body.comment.body.toLowerCase().includes('ready to merge')) {
+  if (lcComment.includes('ready to merge')) {
     isRTM = true
-  } else if (body.comment.body.toLowerCase().includes('approve merge')) {
+  } else if (lcComment.includes('approve merge')) {
     isRTM = false
   }
 
