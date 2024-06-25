@@ -3,21 +3,21 @@
   "version": "2.0.0",
   "license": "MIT",
   "scripts": {
-    "db:deploy": "yarn db:generate && drizzle-kit migrate",
+    "db:deploy": "bun db:generate && drizzle-kit migrate",
     "db:generate": "drizzle-kit generate:sqlite",
-    "dev": "yarn studio & tsc-watch -w --onSuccess \"node dist/index.js\"",
+    "dev": "bun studio & tsc-watch -w --onSuccess \"node dist/index.js\"",
     "build": "tsc",
     "start": "node dist/index.js",
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/node-server": "^1.11.1",
-    "@libsql/client": "^0.6.0",
+    "@libsql/client": "^0.7.0",
     "@octokit/webhooks-types": "^7.5.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
     "hono": "^4.2.9",
-    "octokit": "^3.2.0",
+    "octokit": "^4.0.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {

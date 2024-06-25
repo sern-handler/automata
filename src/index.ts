@@ -92,6 +92,14 @@ app.post('/ev/readyToMerge', async (c) => {
         await react(body.repository.owner.login, body.repository.name, body.comment.id, Reaction.MINUS_ONE)
         return c.json({ ok: false, message: 'you cannot approve your own PR' }, 418)
       }
+      if (body.issue.draft) {
+        return octokit.rest.issues.createComment({
+          body: `Please change the draft status of the PR and re-run the command to merge.`,
+          issue_number: body.issue.number,
+          owner: body.repository.owner.login,
+          repo: body.repository.name,
+        })
+      }
       await db.update(schema.rtmAuthor).set({ mergerId: body.comment.user.id.toString() }).where(
         and(
           eq(schema.rtmAuthor.issueNumber, body.issue.number.toString()),
