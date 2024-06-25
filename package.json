@@ -5,9 +5,8 @@
   "scripts": {
     "db:deploy": "bun db:generate && drizzle-kit migrate",
     "db:generate": "drizzle-kit generate:sqlite",
-    "dev": "bun studio & tsc-watch -w --onSuccess \"node dist/index.js\"",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "dev": "concurrently \"bun studio\" \"bun --watch src/index.ts\"",
+    "start": "bun src/index.ts",
     "studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -22,9 +21,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "drizzle-kit": "^0.22.7",
-    "tsc-watch": "^6.2.0",
-    "typescript": "^5.4.5"
+    "drizzle-kit": "^0.22.7"
   },
   "type": "module"
 }

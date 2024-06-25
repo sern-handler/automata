@@ -170,13 +170,10 @@ app.post('/web/feedback', async (c) => {
 })
 
 const port = Number(process.env.PORT || 3000)
-serve({
-  fetch: app.fetch,
+export default {
   port,
-}).on('listening', async () => {
-  console.log(`Hono is listening on port ${port}`)
-  console.log(`Github login as ${(await octokit.rest.users.getAuthenticated()).data.login}`)
-})
+  fetch: app.fetch
+}
 
 process.stdin.on('data', async (data) => {
   if (data.toString().trim() === 'test thing') {
