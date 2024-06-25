@@ -13,7 +13,8 @@ const devTeam = [
   'SrIzan10',
   'jacoobes',
   'EvolutionX-10',
-  'Murtatrxx'
+  'Murtatrxx',
+  'DuroCodes'
 ]
 
 const turso = createClient({
