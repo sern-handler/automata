@@ -8,6 +8,8 @@ import * as schema from './db/schema.js'
 import 'dotenv/config'
 import { and, eq } from 'drizzle-orm';
 import validateJsonWebhook from './util/validateJsonWebhook.js';
+import { react, Reaction } from './util/react.js';
+import { ZFeedbackSchema } from './util/zod.js';
 
 const devTeam = [
   'SrIzan10',
@@ -21,8 +23,8 @@ const turso = createClient({
   url: process.env.DB_URL!,
   authToken: process.env.DB_TOKEN!,
 })
-const octokit = new Octokit({ auth: process.env.GH_API_TOKEN! });
-const db = drizzle(turso, { schema })
+export const octokit = new Octokit({ auth: process.env.GH_API_TOKEN! });
+export const db = drizzle(turso, { schema })
 
 const app = new Hono()
 
@@ -139,6 +141,26 @@ app.post('/ev/updateDocsJson', async (c) => {
   return c.json({ success: true })
 })
 
+app.post('/web/feedback', async (c) => {
+  const zodValidate = ZFeedbackSchema.safeParse(await c.req.json())
+  if (!zodValidate.success)
+    return c.json({ success: false, error: zodValidate.error }, 400)
+  const body = zodValidate.data
+
+  const turnstileFormData = new URLSearchParams()
+  turnstileFormData.append('response', body.turnstileToken)
+  turnstileFormData.append('secret', process.env.TURNSTILE_SECRET!)
+  const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+		method: 'POST',
+		body: turnstileFormData
+	}).then(res => res.json())
+  if (!turnstileResponse.success)
+    return c.json({ success: false, error: 'Unsuccessful turnstile verification'}, 403)
+
+  const { turnstileToken, ...dbFeedback } = body
+  db.insert(schema.feedback).values(dbFeedback).execute()
+})
+
 const port = Number(process.env.PORT || 3000)
 serve({
   fetch: app.fetch,
@@ -154,26 +176,3 @@ process.stdin.on('data', async (data) => {
     // leaving for other testing purposes
   }
 })
-
-async function react(owner: string, repo: string, commentId: number, reaction: Reaction) {
-  return octokit.request('POST /repos/{owner}/{repo}/issues/comments/{comment_id}/reactions', {
-    owner,
-    repo,
-    comment_id: commentId,
-    content: reaction,
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  })
-}
-
-enum Reaction {
-  PLUS_ONE = '+1',
-  MINUS_ONE = '-1',
-  LAUGH = 'laugh',
-  CONFUSED = 'confused',
-  HEART = 'heart',
-  HOORAY = 'hooray',
-  ROCKET = 'rocket',
-  EYES = 'eyes',
-}

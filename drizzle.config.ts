@@ -5,6 +5,7 @@ dotenv.config();
 export default {
   schema: "./src/db/schema.ts",
   out: "./drizzle/migrations",
+  dialect: 'sqlite',
   driver: "turso",
   dbCredentials: {
     url: process.env.DB_URL!,
