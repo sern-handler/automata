@@ -7,3 +7,10 @@ export const rtmAuthor = sqliteTable("rtmAuthor", {
   repo: text('repo').notNull(),
   issueNumber: text('issueNumber').notNull(),
 });
+
+export const feedback = sqliteTable("feedback", {
+  id: integer('id').primaryKey(),
+  feedback: text('feedback').notNull(),
+  inputText: text('inputText').notNull(),
+  route: text('route').notNull(),
+});
