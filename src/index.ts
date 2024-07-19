@@ -125,6 +125,21 @@ app.post('/ev/readyToMerge', async (c) => {
   return c.json({ ok: true })
 })
 
+app.post('/web/updateWebsite', async (c) => {
+  if (c.req.header('Authorization') !== process.env.UPDATEWEBSITE_TOKEN)
+    return c.json({ success: false, error: 'Invalid token' }, 401)
+  await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+    owner: 'sern-handler',
+    repo: 'website',
+    workflow_id: 'github-pages.yml',
+    ref: 'main',
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  })
+  return c.json({ success: true })
+})
+
 app.post('/ev/updateDocsJson', async (c) => {
   const validate = await validateJsonWebhook(c)
   if (!validate)
@@ -137,7 +152,15 @@ app.post('/ev/updateDocsJson', async (c) => {
 			success: true,
 			error: 'Token valid, but ignoring action...'
 		}, 418)
-  await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+
+  await fetch('https://automata.sern.dev/web/updateWebsite', {
+    method: 'POST',
+    headers: {
+      'Authorization': process.env.UPDATEWEBSITE_TOKEN!
+    }
+  })
+
+  /*await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
       owner: 'sern-handler',
       repo: 'automata',
       workflow_id: 'website-bot-update.yml',
@@ -145,7 +168,7 @@ app.post('/ev/updateDocsJson', async (c) => {
       headers: {
         'X-GitHub-Api-Version': '2022-11-28'
       }
-  })
+  })*/
   return c.json({ success: true })
 })
 

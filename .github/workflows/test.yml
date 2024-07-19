@@ -8,7 +8,5 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Run Hello World
-        run: echo "Hello World"
-      - name: cat .yarnrc.yml
-        run: cat .yarnrc.yml
+      - run: echo "Hello World"
+      - run: cat LICENSE
